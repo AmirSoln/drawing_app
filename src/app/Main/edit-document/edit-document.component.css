@@ -1,0 +1,7 @@
+.canvas {
+     position: absolute;
+}
+#container { position: relative; }
+#shapeCanvas{
+    background-color: transparent;
+}

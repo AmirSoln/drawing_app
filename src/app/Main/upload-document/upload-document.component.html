@@ -1,0 +1,27 @@
+<form [formGroup]='uploadDocument' (ngSubmit)="onSubmit()">
+    <div class="card">
+        <div class="row row-cols-1 row-cols-md-2 no-gutters">
+            <div class="col mb-4 card">
+                <h3 class="card-title">Basic Info:</h3>
+                <div class="card-body">
+                    <table>
+                        <tr>
+                            <td><label>Document Name:</label></td>
+                            <td><input formControlName='Name' /></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label>Document photo:</label>
+                            </td>
+                            <td>
+                                <input formControlName='Photo' type="file" accept="image/*" (change) = "onFileSelected($event.target.files)" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <button class="btn btn-primary col-12 mb-2" type="submit" [disabled]="!uploadDocument.valid || selectedFile==null">Save Data</button>
+        </div>
+    </div>
+</form>

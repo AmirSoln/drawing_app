@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+        <div class="card my-5">
+            <div class="card-body">
+                <h5 class="card-title text-center">Delete Account</h5>
+                <form [formGroup]='deleteAccountForm' (ngSubmit)="onSubmit()">
+                    <label>Email address:</label>
+                    <input formControlName="userEmail" id="inputEmail" class="form-control mb-2"
+                        placeholder="Email address">
+                    <label>Are you sure you want to delete your account?</label>
+                    <input formControlName="deleteValidator" id="deleteValidator" class="" type="checkbox">
+                    <button class="btn btn-lg btn-primary btn-block mt-3" type="submit"
+                        [disabled]='!deleteAccountForm.valid'>Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<router-outlet></router-outlet>
