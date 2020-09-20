@@ -5,9 +5,7 @@ import { NotificationService } from 'src/app/Shared/Service/notification.service
 import { map, take } from 'rxjs/operators';
 import { LoginRequest } from '../Dto/login-request';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({providedIn:'root'})
 export class LoginService {
   userEmail: string
 
@@ -19,14 +17,15 @@ export class LoginService {
   constructor(private commService: CommService, private notification: NotificationService) { }
 
   onSignInResponseOK(): Observable<any> {
-    return this.responseSubjects.SignInResponseOK
+    return this.responseSubjects.SignInResponseOK.pipe(take(1))
   }
 
   onSignInResponseInvalidUserNameOrEmail(): Observable<any> {
     return this.responseSubjects.SignInResponseInvalidUserNameOrEmail
   }
+
   onResponseError(): Observable<any> {
-    return new Subject<any>()
+    return new Subject<any>().pipe(take(1))
   }
 
   login(request: LoginRequest): void {
@@ -36,13 +35,10 @@ export class LoginService {
       ([data, subject]) => {
         if (subject == this.responseSubjects.SignInResponseOK) {
           this.userEmail = data["request"].loginDto["email"]
-          this.notification.showSuccess("Login Successfull", "Success")
-        } else {
-          this.notification.showWarning("Wrong Credentials", "Warrning")
         }
         subject.next(data)
       },
-      error => this.notification.showError(error, "Error"),
+      error => this.notification.showError(error, "Error")
     )
   }
 

@@ -4,17 +4,21 @@ import { Router } from '@angular/router';
 import { RegisterRequest } from '../Dto/register-request';
 import { RegisterService } from '../Service/register.service';
 import { UserInfo } from 'src/app/Shared/Dto/user-info';
+import { NotificationService } from 'src/app/Shared/Service/notification.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.css'],
+  providers: [RegisterService]
 })
 export class RegisterComponent implements OnInit {
 
   registerForm: FormGroup
 
-  constructor(private registerService: RegisterService, private router: Router) { }
+  constructor(private registerService: RegisterService,
+    private router: Router,
+    private notifications: NotificationService) { }
 
   ngOnInit(): void {
     this.registerForm = new FormGroup({
@@ -23,9 +27,16 @@ export class RegisterComponent implements OnInit {
     })
 
 
-    this.registerService.SignUpResponseOk.subscribe(
+    this.registerService.onSignUpResponseOk().subscribe(
       result => {
+        this.notifications.showSuccess("Register successfull", "Success")
         this.router.navigate(["/login"])
+      }
+    )
+
+    this.registerService.onSignUpResponseInvalidCredentials().subscribe(
+      result => {
+        this.notifications.showWarning("Somthing went wrong", "warning")
       }
     )
   }
@@ -36,13 +47,9 @@ export class RegisterComponent implements OnInit {
         let userInfo = new UserInfo(this.registerForm.value["userEmail"],
           this.registerForm.value["InAppUsername"]);
         let request = new RegisterRequest(userInfo)
-        // request.login.email = this.registerForm.value["userEmail"]
-        // request.login.inAppUsername = this.registerForm.value["InAppUsername"]
         return request
       }
 
-    console.log(this.registerForm.value)
-    console.log(convertToRegisterRequest())
     this.registerService.register(convertToRegisterRequest())
   }
 

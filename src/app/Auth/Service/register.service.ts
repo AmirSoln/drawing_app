@@ -1,28 +1,26 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { CommService } from 'src/app/Shared/Service/comm.service';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
 import { RegisterRequest } from '../Dto/register-request';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class RegisterService {
   responseSubjects: { [responseID: string]: Subject<any> } = {
-    SignUpResponseOk: new Subject<any>(),
-    SignUpResponseInvalidCredentials: new Subject<any>()
+    'SignUpResponseOk': new Subject<any>(),
+    'SignUpResponseInvalidCredentials': new Subject<any>()
   }
   constructor(private commService: CommService, private notifications: NotificationService) { }
 
-  get SignUpResponseOk() {
-    return this.responseSubjects.SignUpResponseOk
+  onSignUpResponseOk():Observable<any> {
+    return this.responseSubjects.SignUpResponseOk.pipe(take(1))
   }
 
-  get SignUpResponseInvalidCredentials() {
+  onSignUpResponseInvalidCredentials():Observable<any> {
     return this.responseSubjects.SignUpResponseInvalidCredentials
   }
-  get onResponseError() {
+  onResponseError():Observable<any> {
     return new Subject<any>()
   }
 
