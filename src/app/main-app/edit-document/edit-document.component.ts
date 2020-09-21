@@ -7,7 +7,6 @@ import { MarkerService } from '../Service/marker.service';
 import { PosInfo } from '../Dto/pos-info';
 import { MarkerType } from 'src/app/Shared/Dto/marker-type.enum';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
-import { stringify } from 'querystring';
 
 @Component({
   selector: 'app-edit-document',

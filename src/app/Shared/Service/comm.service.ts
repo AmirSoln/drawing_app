@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { RegisterRequest } from 'src/app/Auth/Dto/register-request';
-import { LoginRequest } from 'src/app/Auth/Dto/login-request';
-import { DeleteUserRequest } from 'src/app/Auth/Dto/delete-user-request';
-import { CreateMarkerRequest } from 'src/app/Main/Dto/create-marker-request';
+import { DeleteUserRequest } from 'src/app/authentication/Dto/delete-user-request';
+import { LoginRequest } from 'src/app/authentication/Dto/login-request';
+import { RegisterRequest } from 'src/app/authentication/Dto/register-request';
+import { CreateMarkerRequest } from 'src/app/main-app/Dto/create-marker-request';
 
 @Injectable()
 export abstract class CommService {

@@ -1,12 +1,12 @@
 import { MarkerType } from './../../Shared/Dto/marker-type.enum';
 import { CommService } from 'src/app/Shared/Service/comm.service';
-import { LoginService } from './../../Auth/Service/login.service';
 import { Injectable } from '@angular/core';
 import { PosInfo } from '../Dto/pos-info';
 import { Subject, Observable } from 'rxjs';
 import { CreateMarkerRequest } from '../Dto/create-marker-request';
 import { Marker } from '../Dto/marker';
 import { map } from 'rxjs/operators';
+import { LoginService } from 'src/app/authentication/Service/login.service';
 
 @Injectable()
 export class MarkerService {

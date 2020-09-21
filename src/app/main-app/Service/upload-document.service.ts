@@ -1,9 +1,9 @@
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { LoginService } from 'src/app/Auth/Service/login.service';
 import { CommService } from 'src/app/Shared/Service/comm.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { Observable } from 'rxjs';
+import { LoginService } from 'src/app/authentication/Service/login.service';
 
 @Injectable()
 export class UploadDocumentService {

@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { CommService } from './comm.service';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { RegisterRequest } from 'src/app/Auth/Dto/register-request';
-import { DeleteUserRequest } from 'src/app/Auth/Dto/delete-user-request';
-import { CreateMarkerRequest } from 'src/app/Main/Dto/create-marker-request';
+import { DeleteUserRequest } from 'src/app/authentication/Dto/delete-user-request';
+import { RegisterRequest } from 'src/app/authentication/Dto/register-request';
+import { CreateMarkerRequest } from 'src/app/main-app/Dto/create-marker-request';
 
 @Injectable()
 export class RemoteCommService implements CommService {
