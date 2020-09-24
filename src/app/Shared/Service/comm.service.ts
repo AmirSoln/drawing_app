@@ -17,6 +17,8 @@ export abstract class CommService {
 
   //Document related
   abstract upload(formData: FormData):Observable<any>
+  abstract getDocumentById(documentId:String):Observable<any>
+  abstract getAllDocuments(owner:String):Observable<any>
 
   //Marker related
   abstract createMarker(request: CreateMarkerRequest):Observable<any>

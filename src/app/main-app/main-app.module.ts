@@ -8,13 +8,15 @@ import { UploadDocumentComponent } from './upload-document/upload-document.compo
 import { EditDocumentComponent } from './edit-document/edit-document.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SharedModule } from '../shared/shared.module';
+import { DocumentListComponent } from './document-list/document-list.component';
 
 
 @NgModule({
   declarations: [
     ActionsComponent,
     UploadDocumentComponent,
-    EditDocumentComponent
+    EditDocumentComponent,
+    DocumentListComponent
   ],
   imports: [
     CommonModule,

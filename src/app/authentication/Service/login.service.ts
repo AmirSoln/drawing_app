@@ -38,7 +38,10 @@ export class LoginService {
         }
         subject.next(data)
       },
-      error => this.notification.showError(error, "Error")
+      error => {
+        this.notification.showError("Something went wrong! Try again later", "Error")
+        console.log(error)
+      }
     )
   }
 

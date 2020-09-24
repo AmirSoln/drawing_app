@@ -1,1 +1,21 @@
-<p>document-list works!</p>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th *ngFor="let head of headElements"> {{head}} </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let el of documents">
+            <th>{{el.docName}}</th>
+            <th>
+                <button class="btn btn-primary" [routerLink]="['/editDocument',el.docId]">Edit Document</button>
+            </th>
+            <th>
+                <button class="btn btn-secondary">Share Document</button>
+            </th>
+            <th>
+                <button class="btn btn-danger">Delete Document</button>
+            </th>
+        </tr>
+    </tbody>
+</table>

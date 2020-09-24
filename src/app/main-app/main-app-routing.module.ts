@@ -8,7 +8,7 @@ import { UploadDocumentComponent } from './upload-document/upload-document.compo
 const routes: Routes = [
   { path: '', component: ActionsComponent, canActivate: [LoginGuard] },
   { path: 'uploadDocument', component: UploadDocumentComponent, canActivate: [LoginGuard] },
-  { path: 'editDocument', component: EditDocumentComponent, canActivate: [LoginGuard] }
+  { path: 'editDocument/:documentId', component: EditDocumentComponent, canActivate: [LoginGuard] }
 ];
 
 @NgModule({

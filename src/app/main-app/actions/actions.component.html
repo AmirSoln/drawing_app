@@ -1,17 +1,10 @@
-    <!-- <div class="row row-cols-1 row-cols-md-2 no-gutters"> -->
-        <div class="col mb-4">
-            <button class="card-body btn-primary" [routerLink] = "['/uploadDocument']">Upload Document</button>
-        </div>
-        <div class="col mb-4">
-            <button class="card-body btn-primary" [routerLink] = "['/editDocument']">Edit Document</button>
-        </div>
-        <div class="col mb-4">
-            <button class="card-body btn-primary">Delete Document</button>
-        </div>
-        <div class="col mb-4">
-            <button class="card-body btn-primary">Share Document</button>
-        </div>
-        <div class="col mb-4">
-            <button class="card-body btn-primary">Log-out</button>
-        </div>
-    <!-- </div> -->
+<!-- <div class="row row-cols-1 row-cols-md-2 no-gutters"> -->
+<div class="col mb-4">
+    <button class="card-body btn-primary" [routerLink]="['/uploadDocument']">Upload Document</button>
+</div>
+<app-document-list></app-document-list>
+<div class="col mb-4">
+    <button class="card-body btn-primary">Log-out</button>
+</div>
+<img [src]="image">
+<!-- </div> -->
