@@ -2,7 +2,7 @@ import { Point } from './../Dto/point';
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { faCircleNotch, faSquare, faArrowLeft, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { Subject, fromEvent } from 'rxjs';
-import { buffer, map, switchMap, takeUntil } from 'rxjs/operators';
+import { buffer, switchMap, takeUntil } from 'rxjs/operators';
 import { MarkerService } from '../Service/marker.service';
 import { PosInfo } from '../Dto/pos-info';
 import { MarkerType } from 'src/app/Shared/Dto/marker-type.enum';
@@ -47,9 +47,7 @@ export class EditDocumentComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      console.log(params)
       this.documentId = params['documentId']
-      console.log(this.documentId)
       this.documentService.getDocumentById(this.documentId)
 
       this.markerSerivce.onCreateMarkerResponseOk().subscribe(
@@ -177,7 +175,7 @@ export class EditDocumentComponent implements OnInit {
   }
 
   private drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType) {
-    console.log(position)
+    // console.log(position)
     ctx1.beginPath()
     ctx1.ellipse(position.centerX, position.centerY, position.radiusX, position.radiusY, 0, 0, 2 * Math.PI)
     ctx1.stroke()

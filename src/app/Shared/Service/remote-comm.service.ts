@@ -6,20 +6,24 @@ import { CreateMarkerRequest } from 'src/app/main-app/Dto/create-marker-request'
 import { DeleteUserRequest } from 'src/app/authentication/Dto/delete-user-request';
 import { RegisterRequest } from 'src/app/authentication/Dto/register-request';
 import { environment } from 'src/environments/environment';
+import { DeleteDocumentRequest } from 'src/app/main-app/Dto/delete-document-request';
 
 @Injectable()
 export class RemoteCommService implements CommService {
-  
-
   constructor(private httpClient: HttpClient) { }
 
+  deleteDocument(request: DeleteDocumentRequest): Observable<any> {
+    let url = environment.documentApi + 'DeleteDocumentById'
+    return this.httpClient.post(url, request)
+  }
+
   getAllDocuments(owner: String): Observable<any> {
-    let url = environment.documentApi + 'GetAllDocuments/'+owner
+    let url = environment.documentApi + 'GetAllDocuments/' + owner
     return this.httpClient.get(url)
   }
 
   getDocumentById(documentId: String): Observable<any> {
-    let url = environment.documentApi + 'GetDocumentById/'+documentId
+    let url = environment.documentApi + 'GetDocumentById/' + documentId
     return this.httpClient.get(url)
   }
 
@@ -45,6 +49,6 @@ export class RemoteCommService implements CommService {
   }
 
   register(request: RegisterRequest): Observable<any> {
-    return this.httpClient.post(environment.signUpApi+'SignUp', request);
+    return this.httpClient.post(environment.signUpApi + 'SignUp', request);
   }
 }

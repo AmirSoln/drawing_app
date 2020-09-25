@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CommService } from 'src/app/Shared/Service/comm.service';
+import { DeleteDocumentRequest } from '../Dto/delete-document-request';
 
 @Injectable()
 export class DocumentService {
@@ -9,7 +10,8 @@ export class DocumentService {
   responseSubjects: { [responseID: string]: Subject<any> } = {
     'GetAllDocumentsResponseOk': new Subject<any>(),
     'AppResponseError': new Subject<any>(),
-    'GetDocumentResponseOk':new Subject<any>()
+    'GetDocumentResponseOk':new Subject<any>(),
+    'DeleteDocumentResponseOk':new Subject<any>()
   }
 
   constructor(private commService: CommService) { }
@@ -26,12 +28,15 @@ export class DocumentService {
     return this.responseSubjects.GetDocumentResponseOk
   }
 
+  onDeleteDocumentResponseOk():Observable<any>{
+    return this.responseSubjects.DeleteDocumentResponseOk
+  }
+
   getAllDocuments(owner: string): void {
     this.commService.getAllDocuments(owner).pipe(
       map(data => [data, this.responseSubjects[data.responseType]])
     ).subscribe(
       ([data, subject]) => {
-        console.log(data.documents)
         subject.next(data.documents)
       },
       err => console.log(err)
@@ -43,9 +48,21 @@ export class DocumentService {
       map(data => [data, this.responseSubjects[data.responseType]])
     ).subscribe(
       ([data, subject]) => {
-        console.log(data)
         let imageData = 'data:image/png;base64,' + data.image;
         subject.next(imageData)
+      }
+    )
+  }
+
+  deleteDocument(docId: string) {
+    let request = new DeleteDocumentRequest()
+    request.docId = docId
+
+    this.commService.deleteDocument(request).pipe(
+      map(data => [data, this.responseSubjects[data.responseType]])
+    ).subscribe(
+      ([data, subject]) => {
+        subject.next(data)
       }
     )
   }

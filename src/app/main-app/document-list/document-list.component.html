@@ -14,8 +14,24 @@
                 <button class="btn btn-secondary">Share Document</button>
             </th>
             <th>
-                <button class="btn btn-danger">Delete Document</button>
+                <button class="btn btn-danger" (click) = "open(el.docId,el.docName)">Delete Document</button>
             </th>
         </tr>
     </tbody>
 </table>
+
+<!-- <ng-template #mymodal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Delete Document</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      Are you sure you want to delete this file?
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="deleteDocument()">Yes</button>
+      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Quit')">No</button>
+    </div>
+  </ng-template> -->

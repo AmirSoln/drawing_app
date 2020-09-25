@@ -48,4 +48,8 @@ export class LoginService {
   getLoggedInUser(): string {
     return this.userEmail
   }
+
+  logOut() {
+    this.userEmail = null
+  }
 }
