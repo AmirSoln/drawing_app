@@ -25,6 +25,7 @@ export class EditDocumentComponent implements OnInit {
 
   isMarkerSelected = false
   markerType: MarkerType
+  color:string
 
   image: any
   @Input() documentId: string
@@ -59,14 +60,12 @@ export class EditDocumentComponent implements OnInit {
           var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
           let marker = response.request.marker
           let position = JSON.parse(marker.position)
-          this.drawShapeOnCanvas(ctx1, position, marker.markerType)
+          this.drawShapeOnCanvas(ctx1, position, marker.markerType,this.color)
         }
       )
 
-      this.markerSerivce.getMarkers(this.documentId)
       this.markerSerivce.onGetMarkersResponseOk().subscribe(
         response => {
-          console.log(response)
           this.drawMarkers(response)
         }
       )
@@ -78,8 +77,9 @@ export class EditDocumentComponent implements OnInit {
         var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
         let base_image = new Image()
         base_image.src = this.image
-        base_image.onload = function () {
+        base_image.onload = () => {
           ctx1.drawImage(base_image, 0, 0)
+          this.markerSerivce.getMarkers(this.documentId)
         }
       }
     )
@@ -93,12 +93,11 @@ export class EditDocumentComponent implements OnInit {
     this.markerType = MarkerType.Rectangle
   }
 
-  clearCanvas(): void {
-    var canvas = this.drawingCanvas.nativeElement
-    var ctx2 = canvas.getContext('2d')
-    ctx2.clearRect(0, 0, this.drawingCanvas.nativeElement.width, this.drawingCanvas.nativeElement.height)
+  setColor(event):void {
+    console.log('value', event.target.value);
+    this.color = event.target.value
   }
-  
+
   freeDraw(evt): void {
     var canvas = this.drawingCanvas.nativeElement
     var ctx2 = canvas.getContext('2d')
@@ -123,17 +122,8 @@ export class EditDocumentComponent implements OnInit {
     radius = shapePoly.reduce((acc, pt) => acc.add(new Point(Math.abs(pt.X - center.X), Math.abs(pt.Y - center.Y))))
     radius = radius.div(shapePoly.length)
 
-    let pos = this.getPosFromCenterAndRadius(center, radius)
-    this.markerSerivce.createMarker(pos, this.documentId, this.markerType)
-  }
-
-  getPosFromCenterAndRadius(center: Point, radius: Point) {
-    let pos = new PosInfo()
-    pos.centerX = center.X
-    pos.centerY = center.Y
-    pos.radiusX = radius.X
-    pos.radiusY = radius.Y
-    return pos
+    let pos = this.drawingService.getPosFromCenterAndRadius(center, radius)
+    this.markerSerivce.createMarker(pos, this.documentId, this.markerType,this.color)
   }
 
   ngAfterViewInit() {
@@ -167,7 +157,7 @@ export class EditDocumentComponent implements OnInit {
     this.poly.pipe(
       buffer(mouseUp$),
     ).subscribe(shapePoly => {
-      this.clearCanvas()
+      this.drawingService.clearCanvas(this.drawingCanvas.nativeElement)
       this.drawShape(shapePoly)
     })
   }
@@ -181,13 +171,14 @@ export class EditDocumentComponent implements OnInit {
     var markers = response.markers
     Array.of(...markers).map(element => {
       let position = JSON.parse(element.position)
-      this.drawShapeOnCanvas(ctx1, position, element.markerType)
+      this.drawShapeOnCanvas(ctx1, position, element.markerType,element.color)
     })
   }
 
-  private drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType) {
-    // console.log(position)
+  private drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType,color:any) {
     ctx1.beginPath()
+    ctx1.lineWidth = 2
+    ctx1.strokeStyle = color
     if (markerType == MarkerType.Ellipse) {
       ctx1.ellipse(position.centerX, position.centerY, position.radiusX, position.radiusY, 0, 0, 2 * Math.PI)
     } else {

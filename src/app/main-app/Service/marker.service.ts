@@ -30,9 +30,9 @@ export class MarkerService {
     return this.responseSubjects.GetMarkersResponseOk
   }
 
-  createMarker(pos: PosInfo, docId: string, markType: MarkerType):void {
+  createMarker(pos: PosInfo, docId: string, markType: MarkerType,color:string):void {
     let request = new CreateMarkerRequest()
-    request.marker = new Marker(docId, JSON.stringify(pos), this.loginService.getLoggedInUser(), markType, "Black")
+    request.marker = new Marker(docId, JSON.stringify(pos), this.loginService.getLoggedInUser(), markType, color)
 
     this.commService.createMarker(request).pipe(
       map(data => [data, this.responseSubjects[data.responseType]])
