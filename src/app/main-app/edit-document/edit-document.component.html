@@ -1,8 +1,8 @@
 <nav id="toolbar" class="navbar navbar-expand-lg navbar-light bg-light">
-    <button #btn class="btn btn-primary col-3 mr-2">
+    <button #btn class="btn btn-primary col-3 mr-2" (click) = "onCircleClicked()">
         <fa-icon [icon]="circle"></fa-icon>
     </button>
-    <button class="btn btn-success col-3 mr-2">
+    <button class="btn btn-success col-3 mr-2" (click) = "onRectangleClicked()">
         <fa-icon [icon]="square"></fa-icon>
     </button>
     <button class="btn btn-danger col-3 mr-2" [disabled]="!isMarkerSelected">
