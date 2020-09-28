@@ -1,22 +1,37 @@
 <nav id="toolbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <button #btn class="btn btn-primary col-3 mr-2" (click)="onCircleClicked()">
-        <fa-icon [icon]="circle"></fa-icon>
-    </button>
-    <button class="btn btn-success col-3 mr-2" (click)="onRectangleClicked()">
-        <fa-icon [icon]="square"></fa-icon>
-    </button>
-    <button class="btn btn-danger col-3 mr-2" [disabled]="!isMarkerSelected">
-        <fa-icon [icon]="delete"></fa-icon>
-    </button>
-    <button class="btn btn-secondary col-3" [routerLink]="['/actions']">
-        <fa-icon [icon]="arrow"></fa-icon>
-    </button>
+    <div class="form-inline">
+        <div class="">
+            <button #btn class="btn btn-primary" (click)="onCircleClicked()">
+                <fa-icon [icon]="circle"></fa-icon>
+            </button>
+        </div>
+        <div class="">
+            <button class="btn btn-success" (click)="onRectangleClicked()">
+                <fa-icon [icon]="square"></fa-icon>
+            </button>
+        </div>
+        <div class="">
+            <button class="btn btn-danger" [disabled]="!isMarkerSelected">
+                <fa-icon [icon]="delete"></fa-icon>
+            </button>
+        </div>
+        <div class="">
+            <button class="btn btn-secondary" [routerLink]="['/actions']">
+                <fa-icon [icon]="arrow"></fa-icon>
+            </button>
+        </div>
+        <div class="justify-content-end">
+            <span class="navbar-brand ">{{document.docName}}</span>
+        </div>
+    </div>
 </nav>
+
 <div class="col-12 d-flex justify-content-center">
-        <label>Drawing Color: </label>
-        <input #colorPicker type="color" class="btn p-0" (change)="setColor($event)">
+    <label>Drawing Color: </label>
+    <input #colorPicker type="color" class="btn p-0" (change)="setColor($event)">
 </div>
-<div #container id="container" class="main mt-2">
+
+<div #container id="container" class="mt-2">
     <canvas #shapeCanvas id="shapeCanvas" class='canvas'></canvas>
     <canvas #drawingCanvas id="drawingCanvas" class='canvas'></canvas>
 </div>

@@ -48,8 +48,8 @@ export class DocumentService {
       map(data => [data, this.responseSubjects[data.responseType]])
     ).subscribe(
       ([data, subject]) => {
-        let imageData = 'data:image/png;base64,' + data.image;
-        subject.next(imageData)
+        data.image = 'data:image/png;base64,' + data.image
+        subject.next(data)
       }
     )
   }

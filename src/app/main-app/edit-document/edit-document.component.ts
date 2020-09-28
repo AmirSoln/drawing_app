@@ -1,15 +1,13 @@
 import { Point } from './../Dto/point';
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { faCircleNotch, faSquare, faArrowLeft, faTimes } from '@fortawesome/free-solid-svg-icons'
-import { Subject, fromEvent } from 'rxjs';
-import { buffer, switchMap, takeUntil } from 'rxjs/operators';
 import { MarkerService } from '../Service/marker.service';
-import { PosInfo } from '../Dto/pos-info';
 import { MarkerType } from 'src/app/Shared/Dto/marker-type.enum';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
 import { DocumentService } from '../Service/document.service';
 import { ActivatedRoute } from '@angular/router';
 import { DrawingService } from '../Service/drawing.service';
+import { Document } from '../Dto/document';
 
 @Component({
   selector: 'app-edit-document',
@@ -25,7 +23,8 @@ export class EditDocumentComponent implements OnInit {
 
   isMarkerSelected = false
   markerType: MarkerType
-  color:string
+  color: string
+  document: Document = new Document()
 
   image: any
   @Input() documentId: string
@@ -34,19 +33,12 @@ export class EditDocumentComponent implements OnInit {
   @ViewChild('drawingCanvas', { static: false }) drawingCanvas: ElementRef
   @ViewChild('btn', { static: false }) btn: ElementRef
   title = 'DrawingApp'
-  mDown: Boolean
-  mouseDown$: any
-  poly: Subject<Point>
-  switchSubject: Subject<Point>
 
   constructor(private markerSerivce: MarkerService,
     private notifications: NotificationService,
     private route: ActivatedRoute,
     private documentService: DocumentService,
     private drawingService: DrawingService) {
-    this.poly = new Subject<Point>()
-    this.switchSubject = new Subject<Point>()
-    this.mDown = false
   }
 
   ngOnInit(): void {
@@ -60,29 +52,52 @@ export class EditDocumentComponent implements OnInit {
           var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
           let marker = response.request.marker
           let position = JSON.parse(marker.position)
-          this.drawShapeOnCanvas(ctx1, position, marker.markerType,this.color)
+          this.drawShapeOnCanvas(ctx1, position, marker.markerType, this.color)
         }
       )
 
       this.markerSerivce.onGetMarkersResponseOk().subscribe(
         response => {
           this.drawMarkers(response)
+          var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
+          ctx1.strokeStyle = "Black"
         }
       )
     })
 
     this.documentService.onGetDocumentResponseOk().subscribe(
       result => {
-        this.image = result
+        this.document = result.doc
+        this.image = result.image
         var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
-        let base_image = new Image()
-        base_image.src = this.image
-        base_image.onload = () => {
-          ctx1.drawImage(base_image, 0, 0)
-          this.markerSerivce.getMarkers(this.documentId)
-        }
+        this.buildImage(ctx1, this.shapeCanvas.nativeElement.width, this.shapeCanvas.nativeElement.height);
       }
     )
+  }
+
+  buildImage(ctx1: any, maxWidth: number, maxHeight: number) {
+    var shapeCanvas = this.shapeCanvas.nativeElement
+    var drawingCanvas = this.drawingCanvas.nativeElement
+    let base_image = new Image()
+    base_image.src = this.image
+    base_image.onload = () => {
+      let width = base_image.width
+      let height = base_image.height
+      if (width <= maxWidth && height <= maxHeight) {
+        ctx1.drawImage(base_image, 0, 0)
+      } else {
+        this.setCanvasBoundaries(shapeCanvas, base_image.width, base_image.height, drawingCanvas);
+        ctx1.drawImage(base_image, 0, 0, base_image.width, base_image.height);
+      }
+      this.markerSerivce.getMarkers(this.documentId)
+    }
+  }
+
+  setCanvasBoundaries(shapeCanvas: any, newWidth: number, newHeight: number, drawingCanvas: any) {
+    shapeCanvas.width = newWidth;
+    shapeCanvas.height = newHeight;
+    drawingCanvas.width = newWidth;
+    drawingCanvas.height = newHeight;
   }
 
   onCircleClicked(): void {
@@ -93,23 +108,8 @@ export class EditDocumentComponent implements OnInit {
     this.markerType = MarkerType.Rectangle
   }
 
-  setColor(event):void {
-    console.log('value', event.target.value);
+  setColor(event: any): void {
     this.color = event.target.value
-  }
-
-  freeDraw(evt): void {
-    var canvas = this.drawingCanvas.nativeElement
-    var ctx2 = canvas.getContext('2d')
-    var rect = canvas.getBoundingClientRect()
-    var xcanvas = evt.clientX - rect.left
-    var ycanvas = evt.clientY - rect.top
-
-    ctx2.beginPath()
-    ctx2.moveTo(xcanvas - evt.movementX, ycanvas - evt.movementY)
-    ctx2.lineTo(xcanvas, ycanvas)
-    ctx2.stroke()
-    this.poly.next(new Point(xcanvas - evt.movementX, ycanvas - evt.movementY))
   }
 
   drawShape(shapePoly: Array<Point>) {
@@ -123,59 +123,29 @@ export class EditDocumentComponent implements OnInit {
     radius = radius.div(shapePoly.length)
 
     let pos = this.drawingService.getPosFromCenterAndRadius(center, radius)
-    this.markerSerivce.createMarker(pos, this.documentId, this.markerType,this.color)
+    this.markerSerivce.createMarker(pos, this.documentId, this.markerType, this.color)
   }
 
   ngAfterViewInit() {
-    var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
-    this.shapeCanvas.nativeElement.height = 1200
-    this.drawingCanvas.nativeElement.height = 1200
-
-    var ctx2 = this.drawingCanvas.nativeElement.getContext('2d')
-    ctx1.canvas.width = window.innerWidth
-    ctx1.canvas.height = window.innerHeight
-    ctx2.canvas.width = window.innerWidth
-    ctx2.canvas.height = window.innerHeight
-    var drawBtn$ = fromEvent(this.btn.nativeElement, 'click')
-    var drawMode = false
-    drawBtn$.subscribe(evt => drawMode = true)
-    var mouseUp$ = fromEvent(this.drawingCanvas.nativeElement, 'mouseup')
-    var mousedown$ = fromEvent(this.drawingCanvas.nativeElement, 'mousedown')
-    var draw$ = mousedown$.pipe(
-      // restart counter on every click
-      switchMap(event =>
-        fromEvent(this.drawingCanvas.nativeElement, 'mousemove').pipe(
-          takeUntil(mouseUp$)
-        ))
+    this.drawingService.initDrawings(this.drawingCanvas)
+    this.drawingService.onFinishedFreeDraw().subscribe(
+      result => this.drawShape(result)
     )
-
-    draw$.subscribe(evt => this.freeDraw(evt))
-    function getDrawMode(value): boolean {
-      return drawMode
-    }
-
-    this.poly.pipe(
-      buffer(mouseUp$),
-    ).subscribe(shapePoly => {
-      this.drawingService.clearCanvas(this.drawingCanvas.nativeElement)
-      this.drawShape(shapePoly)
-    })
+    // var drawBtn$ = fromEvent(this.btn.nativeElement, 'click')
+    // var drawMode = false
+    // drawBtn$.subscribe(evt => drawMode = true)
   }
 
-  /**
-   * draws the markers on the document
-   * @param response the response from the server containing the makers data
-   */
-  private drawMarkers(response: any) {
+  drawMarkers(response: any) {
     var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
     var markers = response.markers
     Array.of(...markers).map(element => {
       let position = JSON.parse(element.position)
-      this.drawShapeOnCanvas(ctx1, position, element.markerType,element.color)
+      this.drawShapeOnCanvas(ctx1, position, element.markerType, element.color)
     })
   }
 
-  private drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType,color:any) {
+  drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType, color: any) {
     ctx1.beginPath()
     ctx1.lineWidth = 2
     ctx1.strokeStyle = color
