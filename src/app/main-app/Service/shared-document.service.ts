@@ -76,5 +76,4 @@ export class SharedDocumentService {
       err => console.log(err)
     )
   }
-
 }

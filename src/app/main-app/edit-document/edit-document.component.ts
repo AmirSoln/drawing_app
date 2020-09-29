@@ -8,12 +8,13 @@ import { DocumentService } from '../Service/document.service';
 import { ActivatedRoute } from '@angular/router';
 import { DrawingService } from '../Service/drawing.service';
 import { Document } from '../Dto/document';
+import { SharedDocumentService } from '../Service/shared-document.service';
 
 @Component({
   selector: 'app-edit-document',
   templateUrl: './edit-document.component.html',
   styleUrls: ['./edit-document.component.css'],
-  providers: [MarkerService, DocumentService, DrawingService]
+  providers: [MarkerService, DocumentService, DrawingService,SharedDocumentService]
 })
 export class EditDocumentComponent implements OnInit {
   circle = faCircleNotch
@@ -25,6 +26,7 @@ export class EditDocumentComponent implements OnInit {
   markerType: MarkerType
   color: string
   document: Document = new Document()
+  isShared:boolean
 
   image: any
   @Input() documentId: string
@@ -38,13 +40,15 @@ export class EditDocumentComponent implements OnInit {
     private notifications: NotificationService,
     private route: ActivatedRoute,
     private documentService: DocumentService,
-    private drawingService: DrawingService) {
+    private drawingService: DrawingService,
+    private sharingService:SharedDocumentService) {
   }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.documentId = params['documentId']
       this.documentService.getDocumentById(this.documentId)
+      this.sharingService.getAllUsersForShare(this.documentId)
 
       this.markerSerivce.onCreateMarkerResponseOk().subscribe(
         response => {
@@ -71,6 +75,12 @@ export class EditDocumentComponent implements OnInit {
         this.image = result.image
         var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
         this.buildImage(ctx1, this.shapeCanvas.nativeElement.width, this.shapeCanvas.nativeElement.height);
+      }
+    )
+
+    this.sharingService.onGetAllUsersResponseOk().subscribe(
+      result=>{
+        this.isShared = Array.of(...result).filter(obj=>obj.isSharedWith).length>0
       }
     )
   }

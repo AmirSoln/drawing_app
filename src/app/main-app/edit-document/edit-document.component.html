@@ -1,24 +1,21 @@
 <nav id="toolbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="form-inline">
-        <div class="">
-            <button #btn class="btn btn-primary" (click)="onCircleClicked()">
-                <fa-icon [icon]="circle"></fa-icon>
-            </button>
-        </div>
-        <div class="">
-            <button class="btn btn-success" (click)="onRectangleClicked()">
-                <fa-icon [icon]="square"></fa-icon>
-            </button>
-        </div>
-        <div class="">
-            <button class="btn btn-danger" [disabled]="!isMarkerSelected">
-                <fa-icon [icon]="delete"></fa-icon>
-            </button>
-        </div>
-        <div class="">
-            <button class="btn btn-secondary" [routerLink]="['/actions']">
-                <fa-icon [icon]="arrow"></fa-icon>
-            </button>
+    <div class="container-fluid">
+        <button #btn class="btn btn-primary navbar-btn" (click)="onCircleClicked()">
+            <fa-icon [icon]="circle"></fa-icon>
+        </button>
+        <button class="btn btn-success navbar-btn" (click)="onRectangleClicked()">
+            <fa-icon [icon]="square"></fa-icon>
+        </button>
+        <button class="btn btn-danger navbar-btn" [disabled]="!isMarkerSelected">
+            <fa-icon [icon]="delete"></fa-icon>
+        </button>
+        <button class="btn btn-secondary navbar-btn" [routerLink]="['/actions']">
+            <fa-icon [icon]="arrow"></fa-icon>
+        </button>
+        <div>
+            <span class="dot mr-1 align-middle" 
+            [ngStyle]="{'background-color': (isShared) ? 'green' : 'red'}"></span>
+            <span class= "text-light align-middle" [innerText]="isShared?'Document is shared':'Document is not shared'"></span>
         </div>
         <div class="justify-content-end">
             <span class="navbar-brand ">{{document.docName}}</span>
