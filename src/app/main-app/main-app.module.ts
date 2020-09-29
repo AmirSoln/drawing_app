@@ -10,6 +10,7 @@ import { EditDocumentComponent } from './edit-document/edit-document.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DocumentListComponent } from './document-list/document-list.component';
 import { DeleteApprovalComponent } from './Modals/delete-approval/delete-approval.component';
+import { ShareUserSelectionComponent } from './Modals/share-user-selection/share-user-selection.component';
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { DeleteApprovalComponent } from './Modals/delete-approval/delete-approva
     UploadDocumentComponent,
     EditDocumentComponent,
     DocumentListComponent,
-    DeleteApprovalComponent
+    DeleteApprovalComponent,
+    ShareUserSelectionComponent
   ],
   imports: [
     CommonModule,

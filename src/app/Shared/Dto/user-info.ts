@@ -1,4 +1,4 @@
 export class UserInfo {
-    constructor(public Email:string,
-        public Username:string){}
+    constructor(public email:string,
+        public username:string){}
 }

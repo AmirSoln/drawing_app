@@ -7,10 +7,28 @@ import { DeleteUserRequest } from 'src/app/authentication/Dto/delete-user-reques
 import { RegisterRequest } from 'src/app/authentication/Dto/register-request';
 import { environment } from 'src/environments/environment';
 import { DeleteDocumentRequest } from 'src/app/main-app/Dto/delete-document-request';
+import { GetSharedDocumentsRequest } from 'src/app/main-app/Dto/get-shared-documents-request';
+import { ShareDocumentRequest } from 'src/app/main-app/Dto/share-document-request';
+import { GetAllUsersForSharingRequest } from 'src/app/main-app/Dto/get-all-users-for-sharing-request';
 
 @Injectable()
 export class RemoteCommService implements CommService {
   constructor(private httpClient: HttpClient) { }
+
+  getAllUserForShare(request:GetAllUsersForSharingRequest): Observable<any> {
+    let url = environment.SharingApi + 'GetAllUsersForSharing'
+    return this.httpClient.post(url,request)
+  }
+
+  shareDocument(request: ShareDocumentRequest): Observable<any> {
+    let url = environment.SharingApi + 'SharedDocument'
+    return this.httpClient.post(url,request)
+  }
+
+  getSharedDocuments(request: GetSharedDocumentsRequest): Observable<any> {
+    let url = environment.SharingApi + 'GetSharedDocuments'
+    return this.httpClient.post(url,request)
+  }
 
   deleteDocument(request: DeleteDocumentRequest): Observable<any> {
     let url = environment.documentApi + 'DeleteDocumentById'

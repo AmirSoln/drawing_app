@@ -8,7 +8,8 @@ export const environment = {
   markersApi:'api/Markers/',
   signInApi:'api/SignIn/',
   signUpApi:'api/SignUp/',
-  removeUserApi:'api/RemoveUser/'
+  removeUserApi:'api/RemoveUser/',
+  SharingApi:'api/Share/'
 };
 
 /*

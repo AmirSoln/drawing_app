@@ -1,37 +1,20 @@
 <table class="table table-hover">
     <thead>
+      <button class="btn btn-primary" (click) = "onToggleListClicked()">Switch Shared/Owned list</button>
         <tr>
             <th *ngFor="let head of headElements"> {{head}} </th>
+            <th class="text-center">Actions</th>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let el of documents">
-            <th>{{el.docName}}</th>
-            <th>
+            <td>{{el.docName}}</td>
+            <td>{{el.docOwner}}</td>
+            <td>
                 <button class="btn btn-primary" [routerLink]="['/editDocument',el.docId]">Edit Document</button>
-            </th>
-            <th>
-                <button class="btn btn-secondary">Share Document</button>
-            </th>
-            <th>
-                <button class="btn btn-danger" (click) = "open(el.docId,el.docName)">Delete Document</button>
-            </th>
+                <button class="btn btn-secondary" (click)="openShareModal(el.docId)">Share Document</button>
+                <button class="btn btn-danger" (click) = "openDeleteModal(el.docId,el.docName)">Delete Document</button>
+            </td>
         </tr>
     </tbody>
 </table>
-
-<!-- <ng-template #mymodal let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-basic-title">Delete Document</h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      Are you sure you want to delete this file?
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-outline-dark" (click)="deleteDocument()">Yes</button>
-      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Quit')">No</button>
-    </div>
-  </ng-template> -->
