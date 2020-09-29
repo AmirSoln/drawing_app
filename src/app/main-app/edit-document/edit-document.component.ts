@@ -1,6 +1,5 @@
 import { Point } from './../Dto/point';
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
-import { faCircleNotch, faSquare, faArrowLeft, faTimes } from '@fortawesome/free-solid-svg-icons'
 import { MarkerService } from '../Service/marker.service';
 import { MarkerType } from 'src/app/Shared/Dto/marker-type.enum';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
@@ -17,11 +16,6 @@ import { SharedDocumentService } from '../Service/shared-document.service';
   providers: [MarkerService, DocumentService, DrawingService, SharedDocumentService]
 })
 export class EditDocumentComponent implements OnInit {
-  circle = faCircleNotch
-  square = faSquare
-  arrow = faArrowLeft
-  delete = faTimes
-
   isMarkerSelected = false
   markerType: MarkerType
   color: string

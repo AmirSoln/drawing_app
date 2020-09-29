@@ -7,7 +7,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UploadDocumentComponent } from './upload-document/upload-document.component';
 import { EditDocumentComponent } from './edit-document/edit-document.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DocumentListComponent } from './document-list/document-list.component';
 import { DeleteApprovalComponent } from './Modals/delete-approval/delete-approval.component';
 import { ShareUserSelectionComponent } from './Modals/share-user-selection/share-user-selection.component';
@@ -26,7 +25,6 @@ import { ShareUserSelectionComponent } from './Modals/share-user-selection/share
     CommonModule,
     MainAppRoutingModule,
     ReactiveFormsModule,
-    FontAwesomeModule,
     NgbModule
   ]
 })

@@ -4,7 +4,6 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import {ReactiveFormsModule} from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommService } from './Shared/Service/comm.service';
 import { HttpClientModule } from '@angular/common/http';
 import { AuthenticationModule } from './authentication/authentication.module';
@@ -21,7 +20,6 @@ import { RemoteCommService } from './shared/Service/remote-comm.service';
     AuthenticationModule,
     MainAppModule,
     HttpClientModule,
-    FontAwesomeModule,
     ReactiveFormsModule,
     BrowserModule,
     SharedModule
