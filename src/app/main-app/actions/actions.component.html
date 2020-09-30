@@ -1,14 +1,19 @@
-<div class="row mt-2">
-    <div class="col-12">
-        <h2>Actions:</h2>
-        <div class="mb-4 float-left">
-            <button class="btn btn-primary" [routerLink]="['/uploadDocument']">Upload Document
-                <i class="fa fa-upload"></i></button>
-        </div>
-        <div class="mb-4 float-right">
-            <button class="btn btn-primary" (click)="onLogOut()" [routerLink]="['/login']">Log-out
-                <i class="fa fa-sign-out"></i></button>
+<div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <h2>Actions:</h2>
+            <div class="mb-4 float-left">
+                <button class="btn btn-primary" [routerLink]="['/uploadDocument']">Upload Document
+                    <i class="fa fa-upload"></i></button>
+            </div>
+            <div class="mb-4 float-right">
+                <button class="btn btn-primary" (click)="onLogOut()" [routerLink]="['/login']">Log-out
+                    <i class="fa fa-sign-out"></i></button>
+            </div>
         </div>
     </div>
+    <app-document-list (loadingStatusEmmitter)="handleLoadingSceen($event)"></app-document-list>
+    <div *ngIf="isLoading" id="overlay">
+        <div class="loader"></div>
+    </div>
 </div>
-<app-document-list></app-document-list>

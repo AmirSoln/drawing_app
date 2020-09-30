@@ -1,5 +1,5 @@
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { LoginService } from 'src/app/authentication/Service/login.service';
 import { Document } from '../Dto/document';
 import { DocumentService } from '../Service/document.service';
@@ -18,6 +18,8 @@ export class DocumentListComponent implements OnInit {
   documents: Array<Document>
   headElements: Array<string> = ["Document Name","Owner"]
   isSharedMode:boolean
+  isLoading:boolean
+  @Output() loadingStatusEmmitter:EventEmitter<boolean> = new EventEmitter<boolean>()
 
   constructor(private documentService: DocumentService,
     private sharedDocumentService:SharedDocumentService,
@@ -28,11 +30,17 @@ export class DocumentListComponent implements OnInit {
     this.documentService.getAllDocuments(this.loginService.getLoggedInUser())
 
     this.documentService.onGetDocumentsResponseOk().subscribe(
-      result => this.documents = result
+      result => {
+        this.documents = result
+        this.loadingStatusEmmitter.emit(false)
+      }
     )
 
     this.sharedDocumentService.onGetSharedDocumentsResponseOk().subscribe(
-      result => this.documents = result
+      result => {
+        this.documents = result
+        this.loadingStatusEmmitter.emit(false)
+      }
     )
 
     this.documentService.onDeleteDocumentResponseOk().subscribe(
@@ -56,6 +64,7 @@ export class DocumentListComponent implements OnInit {
   }
 
   onToggleListClicked():void{
+    this.loadingStatusEmmitter.emit(true)
     this.isSharedMode?this.documentService.getAllDocuments(this.loginService.getLoggedInUser()):
     this.sharedDocumentService.getSharedDocuments(this.loginService.getLoggedInUser())
 

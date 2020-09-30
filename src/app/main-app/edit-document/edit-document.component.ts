@@ -21,6 +21,7 @@ export class EditDocumentComponent implements OnInit {
   color: string
   document: Document = new Document()
   isShared: boolean
+  isLoading:boolean
 
   image: any
   @Input() documentId: string
@@ -40,9 +41,9 @@ export class EditDocumentComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
+      this.isLoading = true
       this.documentId = params['documentId']
       this.documentService.getDocumentById(this.documentId)
-      this.sharingService.getAllUsersForShare(this.documentId)
       this.initObservers();
     })
   }
@@ -50,19 +51,20 @@ export class EditDocumentComponent implements OnInit {
   private initObservers() {
     this.markerSerivce.onCreateMarkerResponseOk().subscribe(
       response => {
-        this.notifications.showSuccess("Great!", "Success");
-        var ctx1 = this.shapeCanvas.nativeElement.getContext('2d');
-        let marker = response.request.marker;
-        let position = JSON.parse(marker.position);
-        this.drawShapeOnCanvas(ctx1, position, marker.markerType, this.color);
+        this.notifications.showSuccess("Great!", "Success")
+        var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
+        let marker = response.request.marker
+        let position = JSON.parse(marker.position)
+        this.drawShapeOnCanvas(ctx1, position, marker.markerType, this.color)
       }
     );
 
     this.markerSerivce.onGetMarkersResponseOk().subscribe(
       response => {
-        this.drawMarkers(response);
-        var ctx1 = this.shapeCanvas.nativeElement.getContext('2d');
-        ctx1.strokeStyle = "Black";
+        this.drawMarkers(response)
+        var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
+        ctx1.strokeStyle = "Black"
+        this.sharingService.getAllUsersForShare(this.documentId)
       }
     );
 
@@ -75,8 +77,18 @@ export class EditDocumentComponent implements OnInit {
     );
 
     this.sharingService.onGetAllUsersResponseOk().subscribe(
-      result => this.isShared = Array.of(...result).filter(obj => obj.isSharedWith).length > 0
+      result => {
+        this.isShared = Array.of(...result).filter(obj => obj.isSharedWith).length > 0
+        this.isLoading = false
+      }
     );
+
+    this.documentService.onAppResponseError().subscribe(
+      result=>{
+        this.notifications.showError('An error has occured. try again later',"Error")
+        this.isLoading=false
+      }
+    )
   }
 
   buildImage(ctx1: any) {
