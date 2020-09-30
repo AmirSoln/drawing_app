@@ -70,7 +70,7 @@ export class SharedDocumentService {
       map(data => [data, this.responseSubjects[data.responseType]])
     ).subscribe(
       ([data, subject]) => {
-        console.log(data)
+        // console.log(data)
         subject.next(data.users)
       },
       err => console.log(err)

@@ -1,6 +1,8 @@
 <table class="table table-hover">
     <thead>
-      <button class="btn btn-primary" (click) = "onToggleListClicked()">Switch Shared/Owned list</button>
+        <button class="btn btn-primary" (click)="onToggleListClicked()">Switch Shared/Owned list
+            <i class="fa fa-refresh"></i>
+        </button>
         <tr>
             <th *ngFor="let head of headElements"> {{head}} </th>
             <th class="text-center">Actions</th>
@@ -11,9 +13,14 @@
             <td>{{el.docName}}</td>
             <td>{{el.docOwner}}</td>
             <td>
-                <button class="btn btn-primary" [routerLink]="['/editDocument',el.docId]">Edit Document</button>
-                <button class="btn btn-secondary" (click)="openShareModal(el.docId)">Share Document</button>
-                <button class="btn btn-danger" (click) = "openDeleteModal(el.docId,el.docName)">Delete Document</button>
+                <button class="btn btn-primary" [routerLink]="['/editDocument',el.docId]">Edit Document
+                    <i class="fa fa-pencil"></i></button>
+                <button class="btn btn-secondary" (click)="openShareModal(el.docId)">Share Document
+                    <i class="fa fa-share"></i>
+                </button>
+                <button class="btn btn-danger" (click)="openDeleteModal(el.docId,el.docName)">Delete Document
+                    <i class="fa fa-trash"></i>
+                </button>
             </td>
         </tr>
     </tbody>
