@@ -19,7 +19,7 @@ import { ShareUserSelectionComponent } from './Modals/share-user-selection/share
     EditDocumentComponent,
     DocumentListComponent,
     DeleteApprovalComponent,
-    ShareUserSelectionComponent
+    ShareUserSelectionComponent,
   ],
   imports: [
     CommonModule,

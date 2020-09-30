@@ -1,9 +1,17 @@
-.canvas {
-     position: absolute;
+#deleteMarkerTable{
+    position: relative;
+    top: 0;
+    left: 0;
 }
+
 #container { position: relative; }
+
 #shapeCanvas{
     background-color: transparent;
+}
+
+ul li{
+    list-style-type: none;
 }
 
 .dot {
@@ -12,4 +20,15 @@
     background-color: red;
     border-radius: 75%;
     display: inline-block;
+  }
+
+  #shapeCanvas {
+    position: relative;
+    z-index: -1;
+  }
+  #drawingCanvas{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
   }

@@ -1,5 +1,6 @@
 import { Point } from './../Dto/point';
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { interval as observableInterval } from "rxjs";
 import { MarkerService } from '../Service/marker.service';
 import { MarkerType } from 'src/app/Shared/Dto/marker-type.enum';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
@@ -9,6 +10,8 @@ import { DrawingService } from '../Service/drawing.service';
 import { Document } from '../Dto/document';
 import { SharedDocumentService } from '../Service/shared-document.service';
 import { Location } from '@angular/common';
+import { Marker } from '../Dto/marker';
+import { scan, takeWhile, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-edit-document',
@@ -17,18 +20,21 @@ import { Location } from '@angular/common';
   providers: [MarkerService, DocumentService, DrawingService, SharedDocumentService]
 })
 export class EditDocumentComponent implements OnInit {
-  isMarkerSelected = false
   markerType: MarkerType
   color: string
   document: Document = new Document()
   isShared: boolean
-  isLoading:boolean
+  isLoading: boolean
+  markers: Array<Marker>
+  headElements: Array<string> = ['Select', 'Marker Id', 'Marker Owner']
+  deleteMode: boolean = false
 
   image: any
   @Input() documentId: string
 
   @ViewChild('shapeCanvas', { static: false }) shapeCanvas: ElementRef
   @ViewChild('drawingCanvas', { static: false }) drawingCanvas: ElementRef
+  @ViewChild('previewCanvas', { static: false }) previewCanvas: ElementRef
   @ViewChild('btn', { static: false }) btn: ElementRef
   title = 'DrawingApp'
 
@@ -63,7 +69,9 @@ export class EditDocumentComponent implements OnInit {
 
     this.markerSerivce.onGetMarkersResponseOk().subscribe(
       response => {
-        this.drawMarkers(response)
+        var markers = response.markers
+    this.markers = markers
+        this.drawMarkers(markers)
         var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
         ctx1.strokeStyle = "Black"
         this.sharingService.getAllUsersForShare(this.documentId)
@@ -73,7 +81,7 @@ export class EditDocumentComponent implements OnInit {
     this.documentService.onGetDocumentResponseOk().subscribe(
       result => {
         this.document = result.doc;
-        this.image = 'data:image/png;base64,' +result.image;
+        this.image = 'data:image/png;base64,' + result.image;
         this.buildImage(this.shapeCanvas.nativeElement.getContext('2d'));
       }
     );
@@ -86,15 +94,15 @@ export class EditDocumentComponent implements OnInit {
     );
 
     this.documentService.onAppResponseError().subscribe(
-      result=>{
-        this.notifications.showError('An error has occured. try again later',"Error")
-        this.isLoading=false
+      result => {
+        this.notifications.showError('An error has occured. try again later', "Error")
+        this.isLoading = false
       }
     )
 
     this.documentService.onGetDocumentResponseInvalidId().subscribe(
-      result=>{
-        this.notifications.showError('The file requested doesn\'t exists','Error')
+      result => {
+        this.notifications.showError('The file requested doesn\'t exists', 'Error')
         this.location.back()
       }
     )
@@ -155,16 +163,15 @@ export class EditDocumentComponent implements OnInit {
     // drawBtn$.subscribe(evt => drawMode = true)
   }
 
-  drawMarkers(response: any) {
+  drawMarkers(markers: any) {
     var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
-    var markers = response.markers
     Array.of(...markers).map(element => {
       let position = JSON.parse(element.position)
       this.drawShapeOnCanvas(ctx1, position, element.markerType, element.color)
     })
   }
 
-  drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType, color: any) {
+  drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType, color: any,isFilled:boolean = false) {
     ctx1.beginPath()
     this.configureLineParams(ctx1, color);
     if (markerType == MarkerType.Ellipse) {
@@ -174,11 +181,33 @@ export class EditDocumentComponent implements OnInit {
       let topLeftY = position.centerY - position.radiusY
       ctx1.rect(topLeftX, topLeftY, position.radiusX * 2, position.radiusY * 2)
     }
-    ctx1.stroke()
+    if(!isFilled){
+      ctx1.stroke()
+    }else{
+      ctx1.fill()
+    }
   }
 
-  private configureLineParams(ctx1: any, color: any, width: number = 2) {
-    ctx1.lineWidth = width;
-    ctx1.strokeStyle = color;
+  private configureLineParams(ctx1: any, color: any, width: number = 2): void {
+    let tempColor = color
+    if(color==null){
+      tempColor='black'
+    }
+    ctx1.lineWidth = width
+    ctx1.strokeStyle = tempColor
+    ctx1.fillStyle=tempColor
+  }
+
+  handleChange(event: any,markerId:string): void {
+    this.drawingService.clearCanvas(this.drawingCanvas.nativeElement)
+    this.drawMarkers(this.markers)
+    var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
+    var marker = this.markers.find(obj=>obj.markerId==markerId)
+    let position = JSON.parse(marker.position)
+    this.drawShapeOnCanvas(ctx1,position,marker.markerType,marker.color==null?'black':marker.color,true)
+  }
+
+  scroll(el: HTMLElement) {
+    el.scrollIntoView({behavior:"smooth"});
   }
 }
