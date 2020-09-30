@@ -27,6 +27,7 @@ export class DocumentListComponent implements OnInit {
     private modalService: NgbModal) {}
 
   ngOnInit(): void {
+    console.log('here')
     this.documentService.getAllDocuments(this.loginService.getLoggedInUser())
 
     this.documentService.onGetDocumentsResponseOk().subscribe(

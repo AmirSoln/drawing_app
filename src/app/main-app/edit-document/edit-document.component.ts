@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DrawingService } from '../Service/drawing.service';
 import { Document } from '../Dto/document';
 import { SharedDocumentService } from '../Service/shared-document.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-edit-document',
@@ -36,7 +37,8 @@ export class EditDocumentComponent implements OnInit {
     private route: ActivatedRoute,
     private documentService: DocumentService,
     private drawingService: DrawingService,
-    private sharingService: SharedDocumentService) {
+    private sharingService: SharedDocumentService,
+    private location: Location) {
   }
 
   ngOnInit(): void {
@@ -71,7 +73,7 @@ export class EditDocumentComponent implements OnInit {
     this.documentService.onGetDocumentResponseOk().subscribe(
       result => {
         this.document = result.doc;
-        this.image = result.image;
+        this.image = 'data:image/png;base64,' +result.image;
         this.buildImage(this.shapeCanvas.nativeElement.getContext('2d'));
       }
     );
@@ -87,6 +89,13 @@ export class EditDocumentComponent implements OnInit {
       result=>{
         this.notifications.showError('An error has occured. try again later',"Error")
         this.isLoading=false
+      }
+    )
+
+    this.documentService.onGetDocumentResponseInvalidId().subscribe(
+      result=>{
+        this.notifications.showError('The file requested doesn\'t exists','Error')
+        this.location.back()
       }
     )
   }

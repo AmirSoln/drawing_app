@@ -11,7 +11,8 @@ export class DocumentService {
     'GetAllDocumentsResponseOk': new Subject<any>(),
     'AppResponseError': new Subject<any>(),
     'GetDocumentResponseOk':new Subject<any>(),
-    'DeleteDocumentResponseOk':new Subject<any>()
+    'DeleteDocumentResponseOk':new Subject<any>(),
+    'GetDocumentResponseInvalidId':new Subject<any>()
   }
 
   constructor(private commService: CommService) { }
@@ -32,6 +33,10 @@ export class DocumentService {
     return this.responseSubjects.DeleteDocumentResponseOk
   }
 
+  onGetDocumentResponseInvalidId():Observable<any>{
+    return this.responseSubjects.GetDocumentResponseInvalidId
+  }
+
   getAllDocuments(owner: string): void {
     this.commService.getAllDocuments(owner).pipe(
       map(data => [data, this.responseSubjects[data.responseType]])
@@ -48,7 +53,6 @@ export class DocumentService {
       map(data => [data, this.responseSubjects[data.responseType]])
     ).subscribe(
       ([data, subject]) => {
-        data.image = 'data:image/png;base64,' + data.image
         subject.next(data)
       }
     )
