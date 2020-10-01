@@ -6,18 +6,18 @@ import { PosInfo } from '../Dto/pos-info';
 
 @Injectable()
 export class DrawingService {
-
   finishedFreeDraw: Subject<any> = new Subject<any>()
 
-  mDown: Boolean
+  isDrawing:boolean
   mouseDown$: any
   poly: Subject<Point>
-  switchSubject: Subject<Point>
 
   constructor() {
     this.poly = new Subject<Point>()
-    this.switchSubject = new Subject<Point>()
-    this.mDown = false
+  }
+
+  changeDrawMode(isDrawing: boolean) {
+    this.isDrawing = isDrawing
   }
 
   onFinishedFreeDraw(): Observable<any> {
@@ -52,9 +52,6 @@ export class DrawingService {
   }
 
   initDrawings(drawingCanvas: any,): void {
-    // var drawBtn$ = fromEvent(this.btn.nativeElement, 'click')
-    // var drawMode = false
-    // drawBtn$.subscribe(evt => drawMode = true)
     var mouseUp$ = fromEvent(drawingCanvas.nativeElement, 'mouseup')
     var mousedown$ = fromEvent(drawingCanvas.nativeElement, 'mousedown')
     var draw$ = mousedown$.pipe(
@@ -65,10 +62,11 @@ export class DrawingService {
         ))
     )
 
-    draw$.subscribe(evt => this.freeDraw(evt, drawingCanvas.nativeElement))
-    // function getDrawMode(value): boolean {
-    //   return drawMode
-    // }
+    draw$.subscribe(evt => {
+      if(this.isDrawing){
+        this.freeDraw(evt, drawingCanvas.nativeElement)
+      }
+    })
 
     this.poly.pipe(
       buffer(mouseUp$),

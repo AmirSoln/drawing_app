@@ -32,7 +32,6 @@ export class EditDocumentComponent implements OnInit {
   @ViewChild('shapeCanvas', { static: false }) shapeCanvas: ElementRef
   @ViewChild('drawingCanvas', { static: false }) drawingCanvas: ElementRef
   @ViewChild('freeDrawingCanvas', { static: false }) freeDrawingCanvas: ElementRef
-  @ViewChild('btn', { static: false }) btn: ElementRef
   title = 'DrawingApp'
 
   constructor(private markerSerivce: MarkerService,
@@ -114,11 +113,16 @@ export class EditDocumentComponent implements OnInit {
       }
     )
   }
+
   addMarkerToArray(marker: any) {
     var tmpMarker = new Marker(marker.docId,marker.position,marker.ownerUser,marker.markerType,marker.color,marker.markerId)
     console.log(tmpMarker)
     console.log(marker)
     this.markers.push(tmpMarker)
+  }
+
+  changeDrawMode(isDrawing:boolean){
+    this.drawingService.changeDrawMode(isDrawing)
   }
 
   buildImage(ctx1: any) {
@@ -142,14 +146,17 @@ export class EditDocumentComponent implements OnInit {
 
   onCircleClicked(): void {
     this.markerType = MarkerType.Ellipse
+    this.changeDrawMode(true)
   }
 
   onRectangleClicked(): void {
     this.markerType = MarkerType.Rectangle
+    this.changeDrawMode(true)
   }
 
   setColor(event: any): void {
     this.color = event.target.value
+    this.changeDrawMode(false)
   }
 
   drawShape(shapePoly: Array<Point>) {
@@ -219,6 +226,7 @@ export class EditDocumentComponent implements OnInit {
 
   scroll(el: HTMLElement): void {
     el.scrollIntoView({ behavior: "smooth", block: 'center' });
+    this.changeDrawMode(false)
   }
 
   deleteMarker(markerId: string): void {
