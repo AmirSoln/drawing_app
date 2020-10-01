@@ -1,6 +1,5 @@
 import { Point } from './../Dto/point';
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
-import { interval as observableInterval } from "rxjs";
 import { MarkerService } from '../Service/marker.service';
 import { MarkerType } from 'src/app/Shared/Dto/marker-type.enum';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
@@ -11,7 +10,6 @@ import { Document } from '../Dto/document';
 import { SharedDocumentService } from '../Service/shared-document.service';
 import { Location } from '@angular/common';
 import { Marker } from '../Dto/marker';
-import { scan, takeWhile, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-edit-document',
@@ -26,8 +24,7 @@ export class EditDocumentComponent implements OnInit {
   isShared: boolean
   isLoading: boolean
   markers: Array<Marker>
-  headElements: Array<string> = ['Select', 'Marker Id', 'Marker Owner']
-  deleteMode: boolean = false
+  headElements: Array<string> = ['Preview', 'Marker Id', 'Marker Owner','Actions']
 
   image: any
   @Input() documentId: string
@@ -208,6 +205,6 @@ export class EditDocumentComponent implements OnInit {
   }
 
   scroll(el: HTMLElement) {
-    el.scrollIntoView({behavior:"smooth"});
+    el.scrollIntoView({behavior:"smooth",block:'center'});
   }
 }

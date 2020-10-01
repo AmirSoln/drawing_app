@@ -7,7 +7,7 @@
             <button class="btn btn-success navbar-btn" (click)="onRectangleClicked()">
                 <i class="fa fa-square-o"></i>
             </button>
-            <button class="btn btn-danger navbar-btn" (click)="deleteMode=!deleteMode">
+            <button class="btn btn-danger navbar-btn" (click)="scroll(deleteMarkerTable)">
                 <i class="fa fa-eraser"></i>
             </button>
             <button class="btn btn-secondary navbar-btn" [routerLink]="['/actions']">
@@ -37,35 +37,29 @@
                 <canvas #drawingCanvas id="drawingCanvas" class='canvas'></canvas>
             </div>
         </li>
-        <li *ngIf="deleteMode">
-            <div id="deleteMarkerTable">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th *ngFor="let head of headElements"> {{head}} </th>
-                            <th class="text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let el of markers">
-                            <td><input class="form-check-input" type="radio" name="markerSelection"
-                                (change) ="handleChange($event,el.markerId)" (click) ="scroll(canvasContainer)"></td>
-                            <td>{{el.markerId}}</td>
-                            <td>{{el.ownerUser}}</td>
-                            <td>
-                                <button class="btn btn-danger navbar-btn">
-                                    <i class="fa fa-eraser"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <li>
+            <table class="table table-hover" #deleteMarkerTable id="deleteMarkerTable">
+                <thead>
+                    <tr>
+                        <th *ngFor="let head of headElements" class="text-center"> {{head}} </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let el of markers">
+                        <td><input class="form-check-input" type="radio" name="markerSelection"
+                                (change)="handleChange($event,el.markerId)" (click)="scroll(canvasContainer)"></td>
+                        <td>{{el.markerId}}</td>
+                        <td>{{el.ownerUser}}</td>
+                        <td>
+                            <button class="btn btn-danger navbar-btn">
+                                <i class="fa fa-eraser"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </li>
     </ul>
-
-
-    
 
     <div *ngIf="isLoading" id="overlay">
         <div class="loader"></div>
