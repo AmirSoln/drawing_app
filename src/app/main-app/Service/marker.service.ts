@@ -7,13 +7,15 @@ import { CreateMarkerRequest } from '../Dto/create-marker-request';
 import { Marker } from '../Dto/marker';
 import { map } from 'rxjs/operators';
 import { LoginService } from 'src/app/authentication/Service/login.service';
+import { DeleteMarkerRequest } from '../Dto/delete-marker-request';
 
 @Injectable()
 export class MarkerService {
   responseSubjects: { [responseID: string]: Subject<any> } = {
-    CreateMarkerResponseOk: new Subject<any>(),
-    AppResponseError: new Subject<any>(),
-    GetMarkersResponseOk:new Subject<any>()
+    'CreateMarkerResponseOk': new Subject<any>(),
+    'AppResponseError': new Subject<any>(),
+    'GetMarkersResponseOk': new Subject<any>(),
+    'DeleteMarkerResponseOk': new Subject<any>()
   }
 
   constructor(private loginService: LoginService, private commService: CommService) { }
@@ -26,15 +28,33 @@ export class MarkerService {
     return this.responseSubjects.AppResponseError
   }
 
-  onGetMarkersResponseOk():Observable<any>{
+  onGetMarkersResponseOk(): Observable<any> {
     return this.responseSubjects.GetMarkersResponseOk
   }
 
-  createMarker(pos: PosInfo, docId: string, markType: MarkerType,color:string):void {
+  onDeleteMarkerResponseOk(): Observable<any> {
+    return this.responseSubjects.DeleteMarkerResponseOk
+  }
+  deleteMarker(markerId: string) {
+    let request = new DeleteMarkerRequest()
+    request.markerId = markerId
+
+    this.executeObservable(this.commService.deleteMarker(request))
+  }
+
+  createMarker(pos: PosInfo, docId: string, markType: MarkerType, color: string): void {
     let request = new CreateMarkerRequest()
     request.marker = new Marker(docId, JSON.stringify(pos), this.loginService.getLoggedInUser(), markType, color)
 
-    this.commService.createMarker(request).pipe(
+    this.executeObservable(this.commService.createMarker(request))
+  }
+
+  getMarkers(documentId: string): void {
+    this.executeObservable(this.commService.getAllMarkers(documentId))
+  }
+
+  executeObservable(observable: Observable<any>): void {
+    observable.pipe(
       map(data => [data, this.responseSubjects[data.responseType]])
     ).subscribe(
       ([data, subject]) => {
@@ -42,16 +62,5 @@ export class MarkerService {
       },
       err => console.log(err)
     )
-  }
-
-  getMarkers(documentId:string):void{
-      this.commService.getAllMarkers(documentId).pipe(
-        map(data => [data, this.responseSubjects[data.responseType]])
-      ).subscribe(
-        ([data, subject]) => {
-          subject.next(data)
-        },
-        err => console.log(err)
-      )
   }
 }

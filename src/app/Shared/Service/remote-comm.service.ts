@@ -10,10 +10,16 @@ import { DeleteDocumentRequest } from 'src/app/main-app/Dto/delete-document-requ
 import { GetSharedDocumentsRequest } from 'src/app/main-app/Dto/get-shared-documents-request';
 import { ShareDocumentRequest } from 'src/app/main-app/Dto/share-document-request';
 import { GetAllUsersForSharingRequest } from 'src/app/main-app/Dto/get-all-users-for-sharing-request';
+import { DeleteMarkerRequest } from 'src/app/main-app/Dto/delete-marker-request';
 
 @Injectable()
 export class RemoteCommService implements CommService {
   constructor(private httpClient: HttpClient) { }
+
+  deleteMarker(request: DeleteMarkerRequest): Observable<any> {
+    let url = environment.markersApi + 'DeleteMarkerById'
+    return this.httpClient.post(url,request)
+  }
 
   getAllUserForShare(request:GetAllUsersForSharingRequest): Observable<any> {
     let url = environment.SharingApi + 'GetAllUsersForSharing'

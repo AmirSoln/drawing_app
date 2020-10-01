@@ -24,14 +24,14 @@ export class EditDocumentComponent implements OnInit {
   isShared: boolean
   isLoading: boolean
   markers: Array<Marker>
-  headElements: Array<string> = ['Preview', 'Marker Id', 'Marker Owner','Actions']
+  headElements: Array<string> = ['Preview', 'Marker Id', 'Marker Owner', 'Actions']
 
   image: any
   @Input() documentId: string
 
   @ViewChild('shapeCanvas', { static: false }) shapeCanvas: ElementRef
   @ViewChild('drawingCanvas', { static: false }) drawingCanvas: ElementRef
-  @ViewChild('previewCanvas', { static: false }) previewCanvas: ElementRef
+  @ViewChild('freeDrawingCanvas', { static: false }) freeDrawingCanvas: ElementRef
   @ViewChild('btn', { static: false }) btn: ElementRef
   title = 'DrawingApp'
 
@@ -57,19 +57,20 @@ export class EditDocumentComponent implements OnInit {
     this.markerSerivce.onCreateMarkerResponseOk().subscribe(
       response => {
         this.notifications.showSuccess("Great!", "Success")
-        var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
+        var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
         let marker = response.request.marker
         let position = JSON.parse(marker.position)
         this.drawShapeOnCanvas(ctx1, position, marker.markerType, this.color)
+        this.addMarkerToArray(marker)
       }
     );
 
     this.markerSerivce.onGetMarkersResponseOk().subscribe(
       response => {
         var markers = response.markers
-    this.markers = markers
+        this.markers = markers
         this.drawMarkers(markers)
-        var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
+        var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
         ctx1.strokeStyle = "Black"
         this.sharingService.getAllUsersForShare(this.documentId)
       }
@@ -103,25 +104,40 @@ export class EditDocumentComponent implements OnInit {
         this.location.back()
       }
     )
+
+    this.markerSerivce.onDeleteMarkerResponseOk().subscribe(
+      result => {
+        this.notifications.showSuccess("Great!", "Success")
+        this.markers = this.markers.filter(marker => marker.markerId != result.request.markerId)
+        this.drawingService.clearCanvas(this.drawingCanvas.nativeElement)
+        this.drawMarkers(this.markers)
+      }
+    )
+  }
+  addMarkerToArray(marker: any) {
+    var tmpMarker = new Marker(marker.docId,marker.position,marker.ownerUser,marker.markerType,marker.color,marker.markerId)
+    console.log(tmpMarker)
+    console.log(marker)
+    this.markers.push(tmpMarker)
   }
 
   buildImage(ctx1: any) {
-    var shapeCanvas = this.shapeCanvas.nativeElement
-    var drawingCanvas = this.drawingCanvas.nativeElement
     let base_image = new Image()
     base_image.src = this.image
     base_image.onload = () => {
-      this.setCanvasBoundaries(shapeCanvas, base_image.width, base_image.height, drawingCanvas);
+      this.setCanvasBoundaries(
+        [this.shapeCanvas.nativeElement,this.drawingCanvas.nativeElement,this.freeDrawingCanvas.nativeElement]
+        ,base_image.width, base_image.height);
       ctx1.drawImage(base_image, 0, 0, base_image.width, base_image.height);
       this.markerSerivce.getMarkers(this.documentId)
     }
   }
 
-  setCanvasBoundaries(shapeCanvas: any, newWidth: number, newHeight: number, drawingCanvas: any) {
-    shapeCanvas.width = newWidth;
-    shapeCanvas.height = newHeight;
-    drawingCanvas.width = newWidth;
-    drawingCanvas.height = newHeight;
+  setCanvasBoundaries(canvases : Array<any>, newWidth: number, newHeight: number) {
+    canvases.map(canvas=>{
+      canvas.width = newWidth
+      canvas.height = newHeight
+    })
   }
 
   onCircleClicked(): void {
@@ -151,24 +167,21 @@ export class EditDocumentComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.drawingService.initDrawings(this.drawingCanvas)
+    this.drawingService.initDrawings(this.freeDrawingCanvas)
     this.drawingService.onFinishedFreeDraw().subscribe(
       result => this.drawShape(result)
     )
-    // var drawBtn$ = fromEvent(this.btn.nativeElement, 'click')
-    // var drawMode = false
-    // drawBtn$.subscribe(evt => drawMode = true)
   }
 
   drawMarkers(markers: any) {
-    var ctx1 = this.shapeCanvas.nativeElement.getContext('2d')
+    var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
     Array.of(...markers).map(element => {
       let position = JSON.parse(element.position)
       this.drawShapeOnCanvas(ctx1, position, element.markerType, element.color)
     })
   }
 
-  drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType, color: any,isFilled:boolean = false) {
+  drawShapeOnCanvas(ctx1: any, position: any, markerType: MarkerType, color: any, isFilled: boolean = false): void {
     ctx1.beginPath()
     this.configureLineParams(ctx1, color);
     if (markerType == MarkerType.Ellipse) {
@@ -178,33 +191,37 @@ export class EditDocumentComponent implements OnInit {
       let topLeftY = position.centerY - position.radiusY
       ctx1.rect(topLeftX, topLeftY, position.radiusX * 2, position.radiusY * 2)
     }
-    if(!isFilled){
+    if (!isFilled) {
       ctx1.stroke()
-    }else{
+    } else {
       ctx1.fill()
     }
   }
 
   private configureLineParams(ctx1: any, color: any, width: number = 2): void {
     let tempColor = color
-    if(color==null){
-      tempColor='black'
+    if (color == null) {
+      tempColor = 'black'
     }
     ctx1.lineWidth = width
     ctx1.strokeStyle = tempColor
-    ctx1.fillStyle=tempColor
+    ctx1.fillStyle = tempColor
   }
 
-  handleChange(event: any,markerId:string): void {
+  showPreview(markerId: string): void {
     this.drawingService.clearCanvas(this.drawingCanvas.nativeElement)
     this.drawMarkers(this.markers)
     var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
-    var marker = this.markers.find(obj=>obj.markerId==markerId)
+    var marker = this.markers.find(obj => obj.markerId == markerId)
     let position = JSON.parse(marker.position)
-    this.drawShapeOnCanvas(ctx1,position,marker.markerType,marker.color==null?'black':marker.color,true)
+    this.drawShapeOnCanvas(ctx1, position, marker.markerType, marker.color == null ? 'black' : marker.color, true)
   }
 
-  scroll(el: HTMLElement) {
-    el.scrollIntoView({behavior:"smooth",block:'center'});
+  scroll(el: HTMLElement): void {
+    el.scrollIntoView({ behavior: "smooth", block: 'center' });
+  }
+
+  deleteMarker(markerId: string): void {
+    this.markerSerivce.deleteMarker(markerId)
   }
 }
