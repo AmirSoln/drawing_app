@@ -4,16 +4,14 @@ import { CommService } from 'src/app/Shared/Service/comm.service';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
 import { map, take } from 'rxjs/operators';
 import { DeleteUserRequest } from '../Dto/delete-user-request';
+import { ServiceBase } from 'src/app/shared/Service/service-base';
 
 @Injectable()
-export class RemoveUserService {
-  responseSubjects: { [responseID: string]: Subject<any> } = {
-    'RemoveUserResponseOk': new Subject<any>(),
-    'RemoveUserNoUserFoundResponse': new Subject<any>(),
-    'AppResponseError': new Subject<any>()
-  }
+export class RemoveUserService extends ServiceBase {
 
-  constructor(private commService: CommService, private notification: NotificationService) { }
+  constructor(private commService: CommService, private notification: NotificationService) {
+    super('RemoveUserResponseOk','RemoveUserNoUserFoundResponse');
+  }
 
   onRemoveUserResponseOk(): Observable<any> {
     return this.responseSubjects.RemoveUserResponseOk.pipe(take(1))
@@ -23,17 +21,7 @@ export class RemoveUserService {
     return this.responseSubjects.RemoveUserNoUserFoundResponse
   }
 
-  onRemoveAppResponseError(): Observable<any> {
-    return this.responseSubjects.AppResponseError
-  }
-
   removeUser(request: DeleteUserRequest): void {
-    this.commService.removeUser(request).pipe(
-      map(data => [data, this.responseSubjects[data.responseType]])
-    ).subscribe(
-      ([data, subject]) =>
-        subject.next(data),
-      error => this.notification.showError(error, "Error"),
-    )
+    this.executeObservable({observable:this.commService.removeUser(request)})
   }
 }

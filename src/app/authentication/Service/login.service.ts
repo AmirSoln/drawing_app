@@ -4,17 +4,15 @@ import { CommService } from 'src/app/Shared/Service/comm.service';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
 import { map, take } from 'rxjs/operators';
 import { LoginRequest } from '../Dto/login-request';
+import { ServiceBase } from 'src/app/shared/Service/service-base';
 
-@Injectable({providedIn:'root'})
-export class LoginService {
+@Injectable({ providedIn: 'root' })
+export class LoginService extends ServiceBase {
   userEmail: string
 
-  responseSubjects: { [responseID: string]: Subject<any> } = {
-    'SignInResponseOK': new Subject<any>(),
-    'SignInResponseInvalidUserNameOrEmail': new Subject<any>()
+  constructor(private commService: CommService) {
+    super('SignInResponseOK', 'SignInResponseInvalidUserNameOrEmail');
   }
-
-  constructor(private commService: CommService, private notification: NotificationService) { }
 
   onSignInResponseOK(): Observable<any> {
     return this.responseSubjects.SignInResponseOK.pipe(take(1))
@@ -24,25 +22,33 @@ export class LoginService {
     return this.responseSubjects.SignInResponseInvalidUserNameOrEmail
   }
 
-  onResponseError(): Observable<any> {
-    return new Subject<any>().pipe(take(1))
-  }
-
   login(request: LoginRequest): void {
-    this.commService.login(request).pipe(
-      map(data => [data, this.responseSubjects[data.responseType]])
-    ).subscribe(
-      ([data, subject]) => {
-        if (subject == this.responseSubjects.SignInResponseOK) {
-          this.userEmail = data["request"].loginDto["email"]
-        }
-        subject.next(data)
-      },
-      error => {
-        this.notification.showError("Something went wrong! Try again later", "Error")
-        console.log(error)
+    let subFunc = ([data, subject]) => {
+      if (subject == this.responseSubjects.SignInResponseOK) {
+        this.userEmail = data["request"].loginDto["email"]
       }
-    )
+      subject.next(data)
+    }
+
+    this.executeObservable({
+      observable: this.commService.login(request),
+      subscriptionFunc: subFunc
+    })
+
+    // this.commService.login(request).pipe(
+    //   map(data => [data, this.responseSubjects[data.responseType]])
+    // ).subscribe(
+    //   ([data, subject]) => {
+    //     if (subject == this.responseSubjects.SignInResponseOK) {
+    //       this.userEmail = data["request"].loginDto["email"]
+    //     }
+    //     subject.next(data)
+    //   },
+    //   error => {
+    //     this.notification.showError("Something went wrong! Try again later", "Error")
+    //     console.log(error)
+    //   }
+    // )
   }
 
   getLoggedInUser(): string {
