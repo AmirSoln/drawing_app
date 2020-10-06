@@ -1,6 +1,6 @@
-import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Point } from './../Dto/point';
-import { Component, OnInit, ViewChild, ElementRef, Input, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { MarkerService } from '../Service/marker.service';
 import { MarkerType } from 'src/app/Shared/Dto/marker-type.enum';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
@@ -27,7 +27,7 @@ export class EditDocumentComponent implements OnInit {
   isShared: boolean
   isLoading: boolean
   markers: Array<Marker>
-  sharedWithUsers:Array<UserInfo>
+  sharedWithUsers: Array<UserInfo>
   headElements: Array<string> = ['Preview', 'Marker Id', 'Color', 'Actions']
   shareSocket: WebSocket
 
@@ -62,7 +62,7 @@ export class EditDocumentComponent implements OnInit {
   }
 
   ConnectSocket(userId: string) {
-    this.shareSocket = new WebSocket("wss://localhost:5001/ws?userId=" + userId + "&docId="+this.documentId)
+    this.shareSocket = new WebSocket("wss://localhost:5001/ws?userId=" + userId + "&docId=" + this.documentId)
 
     var self = this
     this.shareSocket.onopen = function (evt) {
@@ -71,16 +71,16 @@ export class EditDocumentComponent implements OnInit {
     self.shareSocket.onmessage = (evt => {
       console.log(evt)
       let obj = JSON.parse(evt.data)
-      if(obj.DtoType == "Connected"){
+      if (obj.DtoType == "Connected") {
         let user = obj.Data as UserInfo
         this.sharedWithUsers.push(user)
-      }else if(obj.DtoType == "Disconnected"){
+      } else if (obj.DtoType == "Disconnected") {
         let user = obj.Data as UserInfo
-        this.sharedWithUsers = this.sharedWithUsers.filter(us=>us.email != user.email)
-      }else if(obj.DtoType == "GetUsers"){
+        this.sharedWithUsers = this.sharedWithUsers.filter(us => us.email != user.email)
+      } else if (obj.DtoType == "GetUsers") {
         let users = obj.Data.Users
-        users.map(us=>this.sharedWithUsers.push(us as UserInfo))
-      }else{
+        users.map(us => this.sharedWithUsers.push(us as UserInfo))
+      } else {
         this.markerSerivce.getMarkers(this.documentId)
       }
       return false
@@ -99,7 +99,7 @@ export class EditDocumentComponent implements OnInit {
     this.shareSocket.close()
   }
 
-  private initObservers() {
+  initObservers() {
     this.markerSerivce.onCreateMarkerResponseOk().subscribe(
       response => {
         this.notifications.showSuccess("Great!", "Success")
@@ -164,8 +164,8 @@ export class EditDocumentComponent implements OnInit {
     )
   }
 
-  sendMarkerNotification(msg:string) {
-    if(this.shareSocket.readyState === WebSocket.OPEN){
+  sendMarkerNotification(msg: string) {
+    if (this.shareSocket.readyState === WebSocket.OPEN) {
       this.shareSocket.send(msg)
     }
   }
@@ -264,7 +264,7 @@ export class EditDocumentComponent implements OnInit {
     }
   }
 
-  private configureLineParams(ctx1: any, color: any, width: number = 2): void {
+  configureLineParams(ctx1: any, color: any, width: number = 2): void {
     let tempColor = color
     if (color == null) {
       tempColor = 'black'
@@ -316,14 +316,5 @@ export class EditDocumentComponent implements OnInit {
   //       ctx1.fill(rectangle)
   //     })
   //   })
-  // }
-
-  // send() {
-  //   if (this.websocket1.readyState === WebSocket.OPEN) {
-  //     let obj = {
-  //       blat: '1'
-  //     }
-  //     this.websocket1.send(JSON.stringify(obj))
-  //   }
   // }
 }
