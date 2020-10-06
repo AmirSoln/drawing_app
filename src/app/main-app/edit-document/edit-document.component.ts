@@ -29,7 +29,7 @@ export class EditDocumentComponent implements OnInit {
   markers: Array<Marker>
   sharedWithUsers:Array<UserInfo>
   headElements: Array<string> = ['Preview', 'Marker Id', 'Color', 'Actions']
-  websocket1: WebSocket
+  shareSocket: WebSocket
 
 
   image: any
@@ -62,13 +62,13 @@ export class EditDocumentComponent implements OnInit {
   }
 
   ConnectSocket(userId: string) {
-    this.websocket1 = new WebSocket("wss://localhost:5001/ws?userId=" + userId + "&docId="+this.documentId)
+    this.shareSocket = new WebSocket("wss://localhost:5001/ws?userId=" + userId + "&docId="+this.documentId)
 
     var self = this
-    this.websocket1.onopen = function (evt) {
+    this.shareSocket.onopen = function (evt) {
       console.log("socket open" + JSON.stringify(evt))
     }
-    self.websocket1.onmessage = (evt => {
+    self.shareSocket.onmessage = (evt => {
       console.log(evt)
       let obj = JSON.parse(evt.data)
       if(obj.DtoType == "Connected"){
@@ -77,15 +77,17 @@ export class EditDocumentComponent implements OnInit {
       }else if(obj.DtoType == "Disconnected"){
         let user = obj.Data as UserInfo
         this.sharedWithUsers = this.sharedWithUsers.filter(us=>us.email != user.email)
-      }else{
+      }else if(obj.DtoType == "GetUsers"){
         let users = obj.Data.Users
         users.map(us=>this.sharedWithUsers.push(us as UserInfo))
+      }else{
+        this.markerSerivce.getMarkers(this.documentId)
       }
       return false
     }
     )
-    self.websocket1.onerror = (evt => { console.log('error ', evt) })
-    self.websocket1.onclose = ((evt) => {
+    self.shareSocket.onerror = (evt => { console.log('error ', evt) })
+    self.shareSocket.onclose = ((evt) => {
       console.log("close socket");
       console.log(evt)
     }
@@ -94,7 +96,7 @@ export class EditDocumentComponent implements OnInit {
 
   ngOnDestroy(): void {
     console.log("OnDestroy")
-    this.websocket1.close()
+    this.shareSocket.close()
   }
 
   private initObservers() {
@@ -106,6 +108,7 @@ export class EditDocumentComponent implements OnInit {
         let position = JSON.parse(marker.position)
         this.drawShapeOnCanvas(ctx1, position, marker.markerType, this.color)
         this.addMarkerToArray(marker)
+        this.sendMarkerNotification("Marker Created!")
       }
     );
 
@@ -156,8 +159,15 @@ export class EditDocumentComponent implements OnInit {
         this.markers = this.markers.filter(marker => marker.markerId != result.request.markerId)
         this.drawingService.clearCanvas(this.drawingCanvas.nativeElement)
         this.drawMarkers(this.markers)
+        this.sendMarkerNotification("Marker Deleted!")
       }
     )
+  }
+
+  sendMarkerNotification(msg:string) {
+    if(this.shareSocket.readyState === WebSocket.OPEN){
+      this.shareSocket.send(msg)
+    }
   }
 
   addMarkerToArray(marker: any) {
@@ -230,6 +240,7 @@ export class EditDocumentComponent implements OnInit {
 
   drawMarkers(markers: any, fill: boolean = false) {
     var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
+    this.drawingService.clearCanvas(this.drawingCanvas.nativeElement)
     Array.of(...markers).map(element => {
       let position = JSON.parse(element.position)
       this.drawShapeOnCanvas(ctx1, position, element.markerType, element.color, fill)
