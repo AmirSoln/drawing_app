@@ -13,12 +13,15 @@
             <button class="btn btn-secondary navbar-btn" [routerLink]="['/actions']">
                 <i class="fa fa-arrow-left"></i>
             </button>
-            <div>
+            <div class="dropdown">
                 <span class="dot mr-1 align-middle"
                     [ngStyle]="{'background-color': (isShared) ? 'green' : 'red'}"></span>
-                <span class="text-light align-middle"
-                    [innerText]="isShared?'Document is shared':'Document is not shared'"></span>
-            </div>
+                <span class="text-light align-middle dropdown-toggle " data-toggle="dropdown"
+                    [innerText]="isShared?'Currently in document:' + sharedWithUsers.length:'Document is not shared'"></span>
+                <div class="dropdown-menu">
+                  <span *ngFor="let item of sharedWithUsers" class="dropdown-item">{{item.email}}</span>
+                </div>
+              </div>
             <div class="justify-content-end">
                 <span class="navbar-brand ">{{document.docName}}</span>
             </div>

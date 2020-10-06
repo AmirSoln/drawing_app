@@ -36,7 +36,7 @@ export class DeleteAccountComponent implements OnInit {
       result=>this.notification.showWarning("Something went wrong", "Warrning")
     )
 
-    this.removeUserService.onRemoveAppResponseError().subscribe(
+    this.removeUserService.onAppResponseError().subscribe(
       result=>this.notification.showError("An error has occured","Error")
     )
   }

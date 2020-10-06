@@ -1,5 +1,6 @@
+import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { Point } from './../Dto/point';
-import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, ViewEncapsulation } from '@angular/core';
 import { MarkerService } from '../Service/marker.service';
 import { MarkerType } from 'src/app/Shared/Dto/marker-type.enum';
 import { NotificationService } from 'src/app/Shared/Service/notification.service';
@@ -10,6 +11,8 @@ import { Document } from '../Dto/document';
 import { SharedDocumentService } from '../Service/shared-document.service';
 import { Location } from '@angular/common';
 import { Marker } from '../Dto/marker';
+import { LoginService } from 'src/app/authentication/Service/login.service';
+import { UserInfo } from 'src/app/Shared/Dto/user-info';
 
 @Component({
   selector: 'app-edit-document',
@@ -24,7 +27,10 @@ export class EditDocumentComponent implements OnInit {
   isShared: boolean
   isLoading: boolean
   markers: Array<Marker>
-  headElements: Array<string> = ['Preview', 'Marker Id', 'Marker Owner', 'Actions']
+  sharedWithUsers:Array<UserInfo>
+  headElements: Array<string> = ['Preview', 'Marker Id', 'Color', 'Actions']
+  websocket1: WebSocket
+
 
   image: any
   @Input() documentId: string
@@ -40,16 +46,55 @@ export class EditDocumentComponent implements OnInit {
     private documentService: DocumentService,
     private drawingService: DrawingService,
     private sharingService: SharedDocumentService,
-    private location: Location) {
+    private location: Location,
+    private loginService: LoginService,
+    private modalService: NgbModal) {
   }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
+      this.sharedWithUsers = new Array()
       this.isLoading = true
       this.documentId = params['documentId']
       this.documentService.getDocumentById(this.documentId)
       this.initObservers();
     })
+  }
+
+  ConnectSocket(userId: string) {
+    this.websocket1 = new WebSocket("wss://localhost:5001/ws?userId=" + userId + "&docId="+this.documentId)
+
+    var self = this
+    this.websocket1.onopen = function (evt) {
+      console.log("socket open" + JSON.stringify(evt))
+    }
+    self.websocket1.onmessage = (evt => {
+      console.log(evt)
+      let obj = JSON.parse(evt.data)
+      if(obj.DtoType == "Connected"){
+        let user = obj.Data as UserInfo
+        this.sharedWithUsers.push(user)
+      }else if(obj.DtoType == "Disconnected"){
+        let user = obj.Data as UserInfo
+        this.sharedWithUsers = this.sharedWithUsers.filter(us=>us.email != user.email)
+      }else{
+        let users = obj.Data.Users
+        users.map(us=>this.sharedWithUsers.push(us as UserInfo))
+      }
+      return false
+    }
+    )
+    self.websocket1.onerror = (evt => { console.log('error ', evt) })
+    self.websocket1.onclose = ((evt) => {
+      console.log("close socket");
+      console.log(evt)
+    }
+    )
+  }
+
+  ngOnDestroy(): void {
+    console.log("OnDestroy")
+    this.websocket1.close()
   }
 
   private initObservers() {
@@ -86,6 +131,7 @@ export class EditDocumentComponent implements OnInit {
     this.sharingService.onGetAllUsersResponseOk().subscribe(
       result => {
         this.isShared = Array.of(...result).filter(obj => obj.isSharedWith).length > 0
+        this.ConnectSocket(this.loginService.getLoggedInUser())
         this.isLoading = false
       }
     );
@@ -115,13 +161,13 @@ export class EditDocumentComponent implements OnInit {
   }
 
   addMarkerToArray(marker: any) {
-    var tmpMarker = new Marker(marker.docId,marker.position,marker.ownerUser,marker.markerType,marker.color,marker.markerId)
+    var tmpMarker = new Marker(marker.docId, marker.position, marker.ownerUser, marker.markerType, marker.color, marker.markerId)
     console.log(tmpMarker)
     console.log(marker)
     this.markers.push(tmpMarker)
   }
 
-  changeDrawMode(isDrawing:boolean){
+  changeDrawMode(isDrawing: boolean) {
     this.drawingService.changeDrawMode(isDrawing)
   }
 
@@ -130,15 +176,15 @@ export class EditDocumentComponent implements OnInit {
     base_image.src = this.image
     base_image.onload = () => {
       this.setCanvasBoundaries(
-        [this.shapeCanvas.nativeElement,this.drawingCanvas.nativeElement,this.freeDrawingCanvas.nativeElement]
-        ,base_image.width, base_image.height);
+        [this.shapeCanvas.nativeElement, this.drawingCanvas.nativeElement, this.freeDrawingCanvas.nativeElement]
+        , base_image.width, base_image.height);
       ctx1.drawImage(base_image, 0, 0, base_image.width, base_image.height);
       this.markerSerivce.getMarkers(this.documentId)
     }
   }
 
-  setCanvasBoundaries(canvases : Array<any>, newWidth: number, newHeight: number) {
-    canvases.map(canvas=>{
+  setCanvasBoundaries(canvases: Array<any>, newWidth: number, newHeight: number) {
+    canvases.map(canvas => {
       canvas.width = newWidth
       canvas.height = newHeight
     })
@@ -178,13 +224,15 @@ export class EditDocumentComponent implements OnInit {
     this.drawingService.onFinishedFreeDraw().subscribe(
       result => this.drawShape(result)
     )
+    // this.test()
+
   }
 
-  drawMarkers(markers: any) {
+  drawMarkers(markers: any, fill: boolean = false) {
     var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
     Array.of(...markers).map(element => {
       let position = JSON.parse(element.position)
-      this.drawShapeOnCanvas(ctx1, position, element.markerType, element.color)
+      this.drawShapeOnCanvas(ctx1, position, element.markerType, element.color, fill)
     })
   }
 
@@ -232,4 +280,39 @@ export class EditDocumentComponent implements OnInit {
   deleteMarker(markerId: string): void {
     this.markerSerivce.deleteMarker(markerId)
   }
+
+  // test(): void {
+  //   var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
+  //   var mouseUp$ = fromEvent(this.freeDrawingCanvas.nativeElement, 'click')
+  //   mouseUp$.subscribe(event => {
+  //     let tempEvent = event as MouseEvent
+  //     var markersInClick = this.markers.filter(marker => {
+  //       let pos = JSON.parse(marker.position)
+  //       const rectangle = new Path2D();
+  //       rectangle.rect(pos.centerX - pos.radiusX, pos.centerY - pos.radiusY, pos.radiusX * 2, pos.radiusY * 2)
+  //       return ctx1.isPointInPath(rectangle, tempEvent.offsetX, tempEvent.offsetY)
+  //     })
+  //     console.log(markersInClick)
+  //     let settings: NgbModalOptions={
+  //       size: 'sm',
+  //     }
+  //     const modalRef = this.modalService.open(MarkerChangesComponent,settings)
+  //     modalRef.componentInstance.markers = markersInClick
+  //     markersInClick.map(marker => {
+  //       let pos = JSON.parse(marker.position)
+  //       const rectangle = new Path2D();
+  //       rectangle.rect(pos.centerX - pos.radiusX, pos.centerY - pos.radiusY, pos.radiusX * 2, pos.radiusY * 2)
+  //       ctx1.fill(rectangle)
+  //     })
+  //   })
+  // }
+
+  // send() {
+  //   if (this.websocket1.readyState === WebSocket.OPEN) {
+  //     let obj = {
+  //       blat: '1'
+  //     }
+  //     this.websocket1.send(JSON.stringify(obj))
+  //   }
+  // }
 }

@@ -4,7 +4,7 @@
     left: 0;
 }
 
-#container { position: relative; }
+#canvasContainer { position: relative; }
 
 #shapeCanvas{
     background-color: transparent;
@@ -38,3 +38,8 @@ ul li{
     left: 0;
     z-index: 2;
   }
+
+  .dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+ }
