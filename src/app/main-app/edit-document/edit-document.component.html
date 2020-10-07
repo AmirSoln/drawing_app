@@ -16,9 +16,10 @@
             <div class="dropdown">
                 <span class="dot mr-1 align-middle"
                     [ngStyle]="{'background-color': (isShared) ? 'green' : 'red'}"></span>
-                <span class="text-light align-middle dropdown-toggle " data-toggle="dropdown"
+                <span class="text-light align-middle" data-toggle="dropdown"
+                    [ngClass] = "{'dropdown-toggle':isShared}"
                     [innerText]="isShared?'Currently in document:' + sharedWithUsers.length:'Document is not shared'"></span>
-                <div class="dropdown-menu">
+                <div *ngIf="isShared" class="dropdown-menu">
                   <span *ngFor="let item of sharedWithUsers" class="dropdown-item">{{item.email}}</span>
                 </div>
               </div>
