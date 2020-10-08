@@ -12,8 +12,8 @@ import { SharedDocumentService } from '../../Service/shared-document.service';
 })
 export class ShareUserSelectionComponent implements OnInit {
   users:Array<SharingUserInfo>
-  @Input() docId:string
-  @Input() userId:string
+  docId:string
+  userId:string
 
   constructor(public activeModal: NgbActiveModal,
     private notificationService:NotificationService,
