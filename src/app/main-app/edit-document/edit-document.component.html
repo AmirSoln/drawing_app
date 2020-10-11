@@ -54,7 +54,7 @@
                         <td><input class="form-check-input" type="radio" name="markerSelection"
                                 (change)="showPreview(el.markerId)" (click)="scroll(canvasContainer)"></td>
                         <td>{{el.markerId}}</td>
-                        <td>{{el.ownerUser}}</td>
+                        <td><input type="color" value="{{el.color}}" class="btn p-0" (change)="changeColorOfMarker($event,el.markerId)"></td>
                         <td>
                             <button class="btn btn-danger navbar-btn" (click)="deleteMarker(el.markerId)">
                                 <i class="fa fa-eraser"></i>

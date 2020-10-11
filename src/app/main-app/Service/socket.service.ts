@@ -34,14 +34,11 @@ export class SocketService extends ServiceBase {
     this.rxShareSocket = webSocket(socketUrl)
     
     let dataFunc = (evt: any, index: number): Array<any> => {
-      console.log('evt = ',evt)
-      let newData = evt
-      console.log('newData = ',newData)
-      return [evt, newData, this.responseSubjects[newData.DtoType]]
+      return [evt, this.responseSubjects[evt.DtoType]]
     }
     
-    let subFunc = ([evt, newData, subject]): void => {
-      subject.next(newData)
+    let subFunc = ([evt, subject]): void => {
+      subject.next(evt)
     }
     
     this.executeObservable({

@@ -1,4 +1,3 @@
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Point } from './../Dto/point';
 import { Component, OnInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { MarkerService } from '../Service/marker.service';
@@ -47,8 +46,7 @@ export class EditDocumentComponent implements OnInit {
     private sharingService: SharedDocumentService,
     private location: Location,
     private loginService: LoginService,
-    private socketService: SocketService,
-    private modalService: NgbModal) {
+    private socketService: SocketService) {
   }
 
   ngOnInit(): void {
@@ -59,6 +57,7 @@ export class EditDocumentComponent implements OnInit {
       this.documentService.getDocumentById(this.documentId)
       this.initObservers()
       this.initSocketObservers()
+      this.sharingService.getAllUsersForShare(this.documentId)
     })
   }
 
@@ -89,6 +88,7 @@ export class EditDocumentComponent implements OnInit {
         this.markerSerivce.getMarkers(this.documentId)
       }
     )
+
   }
 
   ngOnDestroy(): void {
@@ -116,9 +116,14 @@ export class EditDocumentComponent implements OnInit {
         this.drawMarkers(markers)
         var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
         ctx1.strokeStyle = "Black"
-        this.sharingService.getAllUsersForShare(this.documentId)
       }
     );
+
+    this.markerSerivce.onEditMarkerResponseOk().subscribe(
+      result=>{
+        this.markerSerivce.getMarkers(this.documentId)
+      }
+    )
 
     this.documentService.onGetDocumentResponseOk().subscribe(
       result => {
@@ -163,8 +168,8 @@ export class EditDocumentComponent implements OnInit {
 
   addMarkerToArray(marker: any) {
     var tmpMarker = new Marker(marker.docId, marker.position, marker.ownerUser, marker.markerType, marker.color, marker.markerId)
-    console.log(tmpMarker)
-    console.log(marker)
+    // console.log(tmpMarker)
+    // console.log(marker)
     this.markers.push(tmpMarker)
   }
 
@@ -206,6 +211,11 @@ export class EditDocumentComponent implements OnInit {
     this.changeDrawMode(false)
   }
 
+  changeColorOfMarker(event: any,markerId:string){
+    let color = event.target.value
+    this.markerSerivce.editMarker(markerId,color)
+  }
+
   drawShape(shapePoly: Array<Point>) {
     if (shapePoly.length == 0)
       return
@@ -223,10 +233,10 @@ export class EditDocumentComponent implements OnInit {
   ngAfterViewInit() {
     this.drawingService.initDrawings(this.freeDrawingCanvas)
     this.drawingService.onFinishedFreeDraw().subscribe(
-      result => this.drawShape(result)
+      result => {
+        this.drawShape(result)
+      }
     )
-    // this.test()
-
   }
 
   drawMarkers(markers: any, fill: boolean = false) {
@@ -271,7 +281,7 @@ export class EditDocumentComponent implements OnInit {
     var ctx1 = this.drawingCanvas.nativeElement.getContext('2d')
     var marker = this.markers.find(obj => obj.markerId == markerId)
     let position = JSON.parse(marker.position)
-    this.drawShapeOnCanvas(ctx1, position, marker.markerType, marker.color == null ? 'black' : marker.color, true)
+    this.drawShapeOnCanvas(ctx1, position, marker.markerType, marker.color == null ? '#000000' : marker.color, true)
   }
 
   scroll(el: HTMLElement): void {

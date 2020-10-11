@@ -16,6 +16,11 @@ import { DeleteMarkerRequest } from 'src/app/main-app/Dto/delete-marker-request'
 export class RemoteCommService implements CommService {
   constructor(private httpClient: HttpClient) { }
 
+  editMarker(request: any): Observable<any> {
+    let url = environment.markersApi + 'EditMarkerById'
+    return this.httpClient.post(url,request)
+  }
+
   deleteMarker(request: DeleteMarkerRequest): Observable<any> {
     let url = environment.markersApi + 'DeleteMarkerById'
     return this.httpClient.post(url,request)

@@ -29,6 +29,8 @@ export abstract class CommService {
   abstract createMarker(request: CreateMarkerRequest): Observable<any>
   abstract getAllMarkers(documentId: string): Observable<any>
   abstract deleteMarker(request: DeleteMarkerRequest): Observable<any>
+  abstract editMarker(request: any): Observable<any>
+
 
   //share related
   abstract getSharedDocuments(request: GetSharedDocumentsRequest): Observable<any>

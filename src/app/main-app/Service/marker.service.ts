@@ -8,12 +8,13 @@ import { Marker } from '../Dto/marker';
 import { LoginService } from 'src/app/authentication/Service/login.service';
 import { DeleteMarkerRequest } from '../Dto/delete-marker-request';
 import { ServiceBase } from 'src/app/shared/Service/service-base';
+import { EditMarkerRequest } from '../Dto/edit-marker-request';
 
 @Injectable()
 export class MarkerService extends ServiceBase {
-  
+
   constructor(private loginService: LoginService, private commService: CommService) {
-    super('CreateMarkerResponseOk','GetMarkersResponseOk','DeleteMarkerResponseOk');
+    super('CreateMarkerResponseOk','GetMarkersResponseOk','DeleteMarkerResponseOk','EditMarkerResponseOk');
   }
 
   onCreateMarkerResponseOk(): Observable<any> {
@@ -26,6 +27,10 @@ export class MarkerService extends ServiceBase {
 
   onDeleteMarkerResponseOk(): Observable<any> {
     return this.responseSubjects.DeleteMarkerResponseOk
+  }
+
+  onEditMarkerResponseOk(): Observable<any> {
+    return this.responseSubjects.EditMarkerResponseOk
   }
 
   deleteMarker(markerId: string) {
@@ -44,6 +49,14 @@ export class MarkerService extends ServiceBase {
 
   getMarkers(documentId: string): void {
     this.executeObservable({observable:this.commService.getAllMarkers(documentId)})
+  }
+
+  editMarker(markerId: string, color: any) {
+    let request = new EditMarkerRequest()
+    request.markerId = markerId
+    request.color = color
+
+    this.executeObservable({observable:this.commService.editMarker(request)})
   }
 
 }
